@@ -1,5 +1,6 @@
 pub mod model;
 pub mod common;
+pub mod config;
 
 #[cfg(test)]
 mod tests {
