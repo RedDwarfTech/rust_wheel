@@ -10,7 +10,6 @@ pub fn establish_connection() -> PgConnection {
 }
 
 pub fn establish_music_connection() -> PgConnection {
-    dotenv().ok();
-    let database_url = env::var("MUSIC_DATABASE_URL").expect("MUSIC_DATABASE_URL must be set");
+    let database_url = std::env::var("MUSIC_DATABASE_URL").expect("MUSIC_DATABASE_URL must be set");
     PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }
