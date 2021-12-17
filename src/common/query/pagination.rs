@@ -24,20 +24,17 @@ impl<T> PaginateForQueryFragment for T
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct Paginated<T> {
-    query: T,
-    page: i64,
-    per_page: i64,
-    is_sub_query: bool
+    pub query: T,
+    pub page: i64,
+    pub per_page: i64,
+    pub is_sub_query: bool
 }
 
 impl<T> Paginated<T> {
-    /// 每页多少条
     pub fn per_page(self, per_page: i64) -> Self {
         Paginated { per_page, ..self }
     }
 
-    /// 实现类似于 load(&conn) 的函数
-    /// 获取 <Vec<U>, 总页数>
     pub fn load_and_count_pages<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
         where
             Self: LoadQuery<PgConnection, (U, i64)>,
@@ -63,7 +60,6 @@ impl<T> QueryFragment<Pg> for Paginated<T>
         T: QueryFragment<Pg>,
 {
     fn walk_ast(&self, mut out: AstPass<Pg>) -> QueryResult<()> {
-        // TODO 优化（使用ID分页）
         out.push_sql("SELECT *, COUNT(*) OVER () FROM ");
         if self.is_sub_query {
             out.push_sql("(");
@@ -81,9 +77,6 @@ impl<T> QueryFragment<Pg> for Paginated<T>
     }
 }
 
-// 以下内容为：为数据源添加分页功能
-
-/// 包装 QuerySource 类型，是之成为 QueryFragment 类型
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct QuerySourceToQueryFragment<T> {
     query_source: T,
@@ -100,20 +93,18 @@ impl<FC, T> QueryFragment<Pg> for QuerySourceToQueryFragment<T>
     }
 }
 
-// 为 QuerySource 类型添加分页功能
 pub trait PaginateForQuerySource: Sized {
     fn paginate(self, page: i64) -> Paginated<QuerySourceToQueryFragment<Self>>;
 }
 
 impl<T> PaginateForQuerySource for T
     where T: QuerySource {
-    /// page: 当前页数
     fn paginate(self, page: i64) -> Paginated<QuerySourceToQueryFragment<Self>> {
         Paginated {
             query: QuerySourceToQueryFragment {query_source: self},
             per_page: 10,
             page,
-            is_sub_query: false, // 不是子查询
+            is_sub_query: false,
         }
     }
 }
