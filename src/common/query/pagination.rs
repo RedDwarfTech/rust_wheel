@@ -22,7 +22,7 @@ impl<T> PaginateForQueryFragment for T
     }
 }
 
-#[derive(Debug, Clone, Copy, QueryId)]
+#[derive(Debug, Clone, Copy, QueryId, Serialize, Deserialize, Default)]
 pub struct Paginated<T> {
     pub query: T,
     pub page: i64,
