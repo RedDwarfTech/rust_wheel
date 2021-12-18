@@ -5,6 +5,7 @@ use diesel::query_builder::{QueryFragment, Query, AstPass};
 use diesel::pg::Pg;
 use diesel::sql_types::BigInt;
 use diesel::QueryId;
+use serde::{Serialize, Deserialize};
 
 pub trait PaginateForQueryFragment: Sized {
     fn paginate(self, page: i64) -> Paginated<Self>;
