@@ -1,4 +1,4 @@
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn get_current_millisecond() -> i64{
     let start = SystemTime::now();
