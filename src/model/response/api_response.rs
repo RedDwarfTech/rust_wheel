@@ -10,6 +10,7 @@ pub struct ApiResponse<T> {
     pub result: T,
     pub statusCode: String,
     pub resultCode: String,
+    pub msg: String
 }
 
 impl<'r, T> Responder<'r, 'r> for ApiResponse<T> {
@@ -30,6 +31,7 @@ where
             result: T::default(),
             statusCode: "200".to_string(),
             resultCode: "200".to_string(),
+            msg: "ok".to_string()
         }
     }
 }
