@@ -27,3 +27,13 @@ pub fn box_rest_response<T>(data: T) -> content::Json<String> where T: Serialize
     let response_json = serde_json::to_string(&res).unwrap();
     return content::Json(response_json);
 }
+
+pub fn box_error_rest_response <T>(data: T, resultCode: String) -> content::Json<String> where T: Serialize + Default {
+    let res = ApiResponse {
+        result: data,
+        statusCode: "200".to_string(),
+        resultCode
+    };
+    let response_json = serde_json::to_string(&res).unwrap();
+    return content::Json(response_json);
+}
