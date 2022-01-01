@@ -26,7 +26,7 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         let token = request.headers().get_one("accessToken");
         let app_id = request.headers().get_one("appId");
         let user_id = request.headers().get_one("userId");
-        let x_request_id = request.headers().get_one("X-Request-ID");
+        let x_request_id = request.headers().get_one("x-request-id");
         match token {
             Some(token) => {
                 let login_user_info = LoginUserInfo {
