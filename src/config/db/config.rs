@@ -18,3 +18,8 @@ pub fn establish_quark_connection() -> PgConnection {
     let database_url = std::env::var("QUARK_DATABASE_URL").expect("QUARK_DATABASE_URL must be set");
     PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }
+
+pub fn establish_dict_connection() -> PgConnection {
+    let database_url = std::env::var("DICT_DATABASE_URL").expect("DICT_DATABASE_URL must be set");
+    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
+}
