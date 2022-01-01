@@ -23,7 +23,7 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
     type Error = ApiTokenError;
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
-        let token = request.headers().get_one("accessToken");
+        let token = request.headers().get_one("x-access-token");
         let app_id = request.headers().get_one("appId");
         let user_id = request.headers().get_one("userId");
         let x_request_id = request.headers().get_one("x-request-id");
