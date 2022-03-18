@@ -8,7 +8,7 @@ use rocket::request::FromRequest;
 pub struct LoginUserInfo {
     pub token: String,
     pub userId: i64,
-    pub appId: i32,
+    pub appId: String,
     pub xRequestId: String
 }
 
@@ -32,7 +32,7 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
                 let login_user_info = LoginUserInfo {
                     token: token.to_string(),
                     userId: user_id.unwrap().parse::<i64>().unwrap(),
-                    appId: app_id.unwrap().parse::<i32>().unwrap(),
+                    appId: app_id.unwrap().to_string(),
                     xRequestId: x_request_id.unwrap().to_string()
                 };
                 // check validity
