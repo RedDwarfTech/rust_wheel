@@ -6,19 +6,21 @@ use diesel::pg::Pg;
 use diesel::sql_types::BigInt;
 use diesel::QueryId;
 use serde::{Serialize, Deserialize};
+use crate::common::query::page_query_handler::{handle_big_table_query, handle_table_query};
 
 pub trait PaginateForQueryFragment: Sized {
-    fn paginate(self, page: i64) -> Paginated<Self>;
+    fn paginate(self, page: i64, is_big_table: bool) -> Paginated<Self>;
 }
 
 impl<T> PaginateForQueryFragment for T
     where T: QueryFragment<Pg>{
-    fn paginate(self, page: i64) -> Paginated<Self> {
+    fn paginate(self, page: i64, is_big_table: bool) -> Paginated<Self> {
         Paginated {
             query: self,
             per_page: 10,
             page,
             is_sub_query: true,
+            is_big_table
         }
     }
 }
@@ -28,7 +30,8 @@ pub struct Paginated<T> {
     pub query: T,
     pub page: i64,
     pub per_page: i64,
-    pub is_sub_query: bool
+    pub is_sub_query: bool,
+    pub is_big_table: bool
 }
 
 impl<T> Paginated<T> {
@@ -73,19 +76,11 @@ impl<T> QueryFragment<Pg> for Paginated<T>
         T: QueryFragment<Pg>,
 {
     fn walk_ast(&self, mut out: AstPass<Pg>) -> QueryResult<()> {
-        out.push_sql("SELECT *, COUNT(*) OVER () FROM ");
-        if self.is_sub_query {
-            out.push_sql("(");
+        if self.is_big_table {
+            handle_big_table_query(&self, out);
+        }else{
+            handle_table_query(&self,out);
         }
-        self.query.walk_ast(out.reborrow())?;
-        if self.is_sub_query {
-            out.push_sql(")");
-        }
-        out.push_sql(" t LIMIT ");
-        out.push_bind_param::<BigInt, _>(&self.per_page)?;
-        out.push_sql(" OFFSET ");
-        let offset = (self.page - 1) * self.per_page;
-        out.push_bind_param::<BigInt, _>(&offset)?;
         Ok(())
     }
 }
@@ -107,17 +102,18 @@ impl<FC, T> QueryFragment<Pg> for QuerySourceToQueryFragment<T>
 }
 
 pub trait PaginateForQuerySource: Sized {
-    fn paginate(self, page: i64) -> Paginated<QuerySourceToQueryFragment<Self>>;
+    fn paginate(self, page: i64, is_big_table: bool) -> Paginated<QuerySourceToQueryFragment<Self>>;
 }
 
 impl<T> PaginateForQuerySource for T
     where T: QuerySource {
-    fn paginate(self, page: i64) -> Paginated<QuerySourceToQueryFragment<Self>> {
+    fn paginate(self, page: i64, is_big_table: bool) -> Paginated<QuerySourceToQueryFragment<Self>> {
         Paginated {
             query: QuerySourceToQueryFragment {query_source: self},
             per_page: 10,
             page,
             is_sub_query: false,
+            is_big_table
         }
     }
 }
