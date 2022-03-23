@@ -23,8 +23,15 @@ pub fn handle_table_query<T: QueryFragment<Pg>>(this: &Paginated<T>, mut out: As
     Ok(())
 }
 
+///
+/// the key to speed up the PostgreSQL big table query was:
+/// 1. use the estimate rows count
+/// 2. use cursor to optimize the end of pages speed
+///
+///
 pub fn handle_big_table_query<T: QueryFragment<Pg>>(this: &PgBigTablePaginated<T>, mut out: AstPass<Pg>)-> QueryResult<()>{
-    let select_str = format!("SELECT *, count_estimate('select * from {}') FROM  ", this.table_name);
+    // https://www.sqlstyle.guide/
+    let select_str = format!("BEGIN; DECLARE article_cursor CURSOR FOR SELECT *, count_estimate('select * from {}') FROM  ", this.table_name);
     out.push_sql(select_str.as_str());
     if this.is_sub_query {
         out.push_sql("(");
@@ -36,7 +43,8 @@ pub fn handle_big_table_query<T: QueryFragment<Pg>>(this: &PgBigTablePaginated<T
         out.push_sql(" OFFSET ");
         let offset = (this.page - 1) * this.per_page;
         out.push_bind_param::<BigInt, _>(&offset)?;
-        out.push_sql(") t");
+        let fetch_str = format!(") t; FETCH {} FROM article_cursor; END;", this.per_page);
+        out.push_sql(fetch_str.as_str());
     }
     Ok(())
 }
