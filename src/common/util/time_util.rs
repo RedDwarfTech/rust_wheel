@@ -1,4 +1,5 @@
 use std::time::{SystemTime, UNIX_EPOCH};
+use chrono::{Duration, Utc};
 
 pub fn get_current_millisecond() -> i64{
     let start = SystemTime::now();
@@ -10,7 +11,10 @@ pub fn get_current_millisecond() -> i64{
     return in_ms as i64;
 }
 
-
+pub fn get_minus_day_millisecond(days: i64) -> i64 {
+    let dt = Utc::now() + Duration::days(days);
+    return dt.timestamp_millis();
+}
 
 
 
