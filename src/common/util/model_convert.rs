@@ -19,6 +19,19 @@ pub fn map_pagination_res<U>(result: QueryResult<(Vec<U>, i64, i64)>, page_num: 
     return resp;
 }
 
+pub fn map_pagination_from_list<U>(list: Vec<U>, page_num: i64,page_size: i64, total: i64) -> PaginationResponse<Vec<U>>{
+    let page_result = Pagination{
+        pageNum: page_num,
+        pageSize: page_size,
+        total
+    };
+    let resp = PaginationResponse{
+        pagination: page_result,
+        list
+    };
+    return resp;
+}
+
 pub fn box_rest_response<T>(data: T) -> content::Json<String> where T: Serialize + Default {
     let res = ApiResponse {
         result: data,
