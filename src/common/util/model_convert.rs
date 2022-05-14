@@ -32,16 +32,16 @@ pub fn map_pagination_from_list<U>(list: Vec<U>, page_num: i64,page_size: i64, t
     return resp;
 }
 
-pub fn box_rest_response<T>(data: T) -> content::Json<String> where T: Serialize + Default {
+pub fn box_rest_response<T>(data: T) -> content::RawJson<String> where T: Serialize + Default {
     let res = ApiResponse {
         result: data,
         ..Default::default()
     };
     let response_json = serde_json::to_string(&res).unwrap();
-    return content::Json(response_json);
+    return content::RawJson(response_json);
 }
 
-pub fn box_error_rest_response <T>(data: T, result_code: String, msg: String) -> content::Json<String> where T: Serialize + Default {
+pub fn box_error_rest_response <T>(data: T, result_code: String, msg: String) -> content::RawJson<String> where T: Serialize + Default {
     let res = ApiResponse {
         result: data,
         statusCode: "200".to_string(),
@@ -49,5 +49,5 @@ pub fn box_error_rest_response <T>(data: T, result_code: String, msg: String) ->
         msg
     };
     let response_json = serde_json::to_string(&res).unwrap();
-    return content::Json(response_json);
+    return content::RawJson(response_json);
 }
