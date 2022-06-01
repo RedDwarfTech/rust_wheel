@@ -23,3 +23,8 @@ pub fn establish_dict_connection() -> PgConnection {
     let database_url = std::env::var("DICT_DATABASE_URL").expect("DICT_DATABASE_URL must be set");
     PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
 }
+
+pub fn connection(db_env_key: String) -> PgConnection {
+    let database_url = std::env::var(db_env_key).expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url).expect(&format!("Error connecting to {}", database_url))
+}
