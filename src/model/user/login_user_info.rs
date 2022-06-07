@@ -6,6 +6,8 @@ use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::okapi::schemars;
 use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
+use rocket_okapi::gen::OpenApiGenerator;
+use rocket_okapi::request::{OpenApiFromRequest, RequestHeaderInput};
 
 // https://stackoverflow.com/questions/24102325/warning-function-should-have-a-snake-case-identifier-on-by-default
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
@@ -51,5 +53,22 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
             }
             None => Outcome::Failure((Status::Unauthorized, ApiTokenError::Missing)),
         }
+    }
+}
+
+/**
+Q: My (diesel) database does not implement OpenApiFromRequest.
+A: This is because the parameter does not show up in the path, query or body.
+So this is considered a Request Guard. There is a derive macro for this,
+but this does not work in combination with the #[database("...")] marco.
+You can solve this my implementing it manually
+**/
+impl<'r> OpenApiFromRequest<'r> for LoginUserInfo {
+    fn from_request_input(
+        _gen: &mut OpenApiGenerator,
+        _name: String,
+        _required: bool,
+    ) -> rocket_okapi::Result<RequestHeaderInput> {
+        Ok(RequestHeaderInput::None)
     }
 }
