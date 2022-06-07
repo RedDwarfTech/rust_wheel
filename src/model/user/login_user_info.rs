@@ -2,8 +2,13 @@ use rocket::{Request, request};
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::FromRequest;
+use rocket_okapi::okapi::schemars::JsonSchema;
+use rocket_okapi::okapi::schemars;
+use rocket::serde::Deserialize;
+use rocket::serde::Serialize;
 
 // https://stackoverflow.com/questions/24102325/warning-function-should-have-a-snake-case-identifier-on-by-default
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
 #[allow(non_snake_case)]
 pub struct LoginUserInfo {
     pub token: String,
