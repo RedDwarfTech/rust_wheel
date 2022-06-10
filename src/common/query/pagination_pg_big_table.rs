@@ -75,8 +75,8 @@ impl<T> QueryFragment<Pg> for PgBigTablePaginated<T>
     where
         T: QueryFragment<Pg>,
 {
-    fn walk_ast(&self, mut out: AstPass<Pg>) -> QueryResult<()> {
-        handle_big_table_query(&self, out);
+    fn walk_ast(&self, out: AstPass<Pg>) -> QueryResult<()> {
+        handle_big_table_query(&self, out).expect("TODO: panic message");
         Ok(())
     }
 }

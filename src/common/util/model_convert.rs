@@ -51,3 +51,8 @@ pub fn box_error_rest_response <T>(data: T, result_code: String, msg: String) ->
     let response_json = serde_json::to_string(&res).unwrap();
     return content::RawJson(response_json);
 }
+
+pub fn map_entity<T,E>(sources: Vec<T>) -> Vec<E> where for<'a> E: From<&'a T>{
+    sources.iter().map(E::from).collect()
+}
+
