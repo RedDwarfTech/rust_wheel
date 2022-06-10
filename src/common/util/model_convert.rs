@@ -52,6 +52,7 @@ pub fn box_error_rest_response <T>(data: T, result_code: String, msg: String) ->
     return content::RawJson(response_json);
 }
 
+/// https://stackoverflow.com/questions/72569425/borrowed-value-does-not-live-long-enough-when-write-an-generic-object-mapping-fu
 pub fn map_entity<T,E>(sources: Vec<T>) -> Vec<E> where for<'a> E: From<&'a T>{
     sources.iter().map(E::from).collect()
 }
