@@ -32,6 +32,16 @@ pub fn map_pagination_from_list<U>(list: Vec<U>, page_num: i64,page_size: i64, t
     return resp;
 }
 
+/// sometimes we need to keep the response type for docs purpose
+/// https://github.com/GREsau/okapi/issues/102
+pub fn box_type_rest_response<T>(data: T) -> ApiResponse<T> where T: Serialize + Default {
+    let res = ApiResponse {
+        result: data,
+        ..Default::default()
+    };
+    return res;
+}
+
 pub fn box_rest_response<T>(data: T) -> content::RawJson<String> where T: Serialize + Default {
     let res = ApiResponse {
         result: data,
