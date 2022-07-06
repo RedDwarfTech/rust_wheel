@@ -21,6 +21,18 @@ pub async fn set_str(con: &mut Connection, key: &str, value: &str, ttl_seconds: 
     Ok(())
 }
 
+pub async fn get_str_default(key: &str) -> Result<String>{
+    let config_redis_string = env::var("REDIS_URL").expect("REDIS_URL must be set");
+    let redis_con_string: &str = config_redis_string.as_str();
+    let redis_client = redis::Client::open(redis_con_string).expect("can create redis client");
+    let mut redis_conn = get_con(redis_client);
+    let value = redis_conn.unwrap().get(key).map_err(RedisCMDError)?;
+    if Value::Nil == value {
+        return Ok(("null".parse().unwrap()));
+    }
+    FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
+}
+
 pub async fn get_str(con: &mut Connection, key: &str) -> Result<String> {
     let value = con.get(key).map_err(RedisCMDError)?;
     if Value::Nil == value {
@@ -29,7 +41,7 @@ pub async fn get_str(con: &mut Connection, key: &str) -> Result<String> {
     FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
 }
 
-pub async fn del_redis_key(key: &str,) -> Result<()> {
+pub async fn del_redis_key(key: &str) -> Result<()> {
     let config_redis_string = env::var("REDIS_URL").expect("REDIS_URL must be set");
     let redis_con_string: &str = config_redis_string.as_str();
     let redis_client = redis::Client::open(redis_con_string).expect("can create redis client");
