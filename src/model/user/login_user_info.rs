@@ -16,7 +16,8 @@ pub struct LoginUserInfo {
     pub token: String,
     pub userId: i64,
     pub appId: String,
-    pub xRequestId: String
+    pub xRequestId: String,
+    pub deviceId: String,
 }
 
 #[derive(Debug)]
@@ -40,13 +41,15 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         let app_id = request.headers().get_one("app-id");
         let user_id = request.headers().get_one("user-id");
         let x_request_id = request.headers().get_one("x-request-id");
+        let device_id = request.headers().get_one("device-id");
         match token {
             Some(token) => {
                 let login_user_info = LoginUserInfo {
                     token: token.to_string(),
                     userId: user_id.unwrap().parse::<i64>().unwrap(),
                     appId: app_id.unwrap().to_string(),
-                    xRequestId: x_request_id.unwrap().to_string()
+                    xRequestId: x_request_id.unwrap().to_string(),
+                    deviceId: device_id.unwrap().to_string(),
                 };
                 // check validity
                 Outcome::Success(login_user_info)
