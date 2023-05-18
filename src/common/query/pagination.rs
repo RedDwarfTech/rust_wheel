@@ -6,7 +6,6 @@ use diesel::pg::Pg;
 use diesel::sql_types::BigInt;
 use diesel::QueryId;
 use serde::{Serialize, Deserialize};
-use crate::common::query::page_query_handler::{ handle_table_query };
 
 pub trait PaginateForQueryFragment: Sized {
     fn paginate(self, page: i64, is_big_table: bool) -> Paginated<Self>;
@@ -39,9 +38,9 @@ impl<T> Paginated<T> {
         Paginated { per_page, ..self }
     }
 
-    pub fn load_and_count_pages<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
+    pub fn load_and_count_pages<U>(self, conn: &mut PgConnection) -> QueryResult<(Vec<U>, i64)>
         where
-            Self: LoadQuery<PgConnection, (U, i64)>,
+            Self: for<'a> LoadQuery<'a, PgConnection, (U, i64)>,
     {
         let per_page = self.per_page;
         let results = self.load::<(U, i64)>(conn)?;
@@ -51,9 +50,9 @@ impl<T> Paginated<T> {
         Ok((records, total_pages))
     }
 
-    pub fn load_and_count_pages_total<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64, i64)>
+    pub fn load_and_count_pages_total<U>(self,conn: &mut PgConnection) -> QueryResult<(Vec<U>, i64, i64)>
         where
-            Self: LoadQuery<PgConnection, (U, i64)>,
+            Self: for<'a> LoadQuery<'a, PgConnection, (U, i64)>,
     {
         let per_page = self.per_page;
         let results = self.load::<(U, i64)>(conn)?;
@@ -70,7 +69,7 @@ impl<T: Query> Query for Paginated<T> {
 
 impl<T> RunQueryDsl<PgConnection> for Paginated<T> {}
 
-
+/** 
 impl<T> QueryFragment<Pg> for Paginated<T>
     where
         T: QueryFragment<Pg>,
@@ -80,12 +79,15 @@ impl<T> QueryFragment<Pg> for Paginated<T>
         Ok(())
     }
 }
+**/
+
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct QuerySourceToQueryFragment<T> {
     query_source: T,
 }
 
+/**
 impl<FC, T> QueryFragment<Pg> for QuerySourceToQueryFragment<T>
     where
         FC: QueryFragment<Pg>,
@@ -96,6 +98,7 @@ impl<FC, T> QueryFragment<Pg> for QuerySourceToQueryFragment<T>
         Ok(())
     }
 }
+ */
 
 pub trait PaginateForQuerySource: Sized {
     fn paginate(self, page: i64, is_big_table: bool) -> Paginated<QuerySourceToQueryFragment<Self>>;
