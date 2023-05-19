@@ -20,8 +20,9 @@ pub fn get_minus_day_millisecond(days: i64) -> i64 {
 }
 
 pub fn end_of_today() -> i64 {
-    Local::today()
-        .and_hms_milli(23, 59, 59, 999)
+    Local::now().date_naive()
+        .and_hms_milli_opt(23, 59, 59, 999)
+        .unwrap()
         .timestamp_millis()
 }   
 
@@ -33,7 +34,7 @@ pub fn start_of_today() -> i64 {
 
 pub fn start_of_month() -> i64{
    let local = Local::now();
-   let nd = NaiveDate::from_ymd(local.year(), local.month(), 1);
+   let nd = NaiveDate::from_ymd_opt(local.year(), local.month(), 1).unwrap();
    let start_of_month = nd.and_hms_milli(0, 0, 0, 000).timestamp_millis();
    return start_of_month;
 }
@@ -50,7 +51,7 @@ pub fn last_day_of_month(year: i32, month: u32) -> NaiveDate {
 }
 
 pub fn get_days_from_month(year: i32, month: u32) -> i64 {
-    NaiveDate::from_ymd(
+    NaiveDate::from_ymd_opt(
         match month {
             12 => year + 1,
             _ => year,
@@ -61,6 +62,7 @@ pub fn get_days_from_month(year: i32, month: u32) -> i64 {
         },
         1,
     )
-    .signed_duration_since(NaiveDate::from_ymd(year, month, 1))
+    .unwrap()
+    .signed_duration_since(NaiveDate::from_ymd_opt(year, month, 1).unwrap())
     .num_days()
 }
