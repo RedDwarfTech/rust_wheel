@@ -1,9 +1,7 @@
 use std::env;
 use redis::{Commands, Connection, FromRedisValue, Value};
-
 use crate::config::cache::mobc_error::Error;
 use crate::config::cache::mobc_error::MobcError::{RedisClientError, RedisCMDError, RedisTypeError};
-use crate::config::initial::get_config;
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -28,7 +26,7 @@ pub async fn get_str_default(key: &str) -> Result<String>{
     let mut redis_conn = get_con(redis_client);
     let value = redis_conn.unwrap().get(key).map_err(RedisCMDError)?;
     if Value::Nil == value {
-        return Ok(("null".parse().unwrap()));
+        return Ok("null".parse().unwrap());
     }
     FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
 }
@@ -36,7 +34,7 @@ pub async fn get_str_default(key: &str) -> Result<String>{
 pub async fn get_str(con: &mut Connection, key: &str) -> Result<String> {
     let value = con.get(key).map_err(RedisCMDError)?;
     if Value::Nil == value {
-        return Ok(("null".parse().unwrap()));
+        return Ok("null".parse().unwrap());
     }
     FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
 }

@@ -1,7 +1,7 @@
 
 use diesel::prelude::*;
 use diesel::query_dsl::methods::LoadQuery;
-use diesel::query_builder::{QueryFragment, Query, AstPass};
+use diesel::query_builder::{QueryFragment, Query};
 use diesel::pg::Pg;
 use diesel::sql_types::BigInt;
 use diesel::QueryId;
