@@ -9,7 +9,7 @@ description = "A project to define some public component."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = { version = "=0.5.0-rc.2", features = ["json"] }
+rocket = { version = "=0.5.0-rc.3", features = ["json"] }
 
 #
 # https://github.com/GREsau/okapi/issues/96
