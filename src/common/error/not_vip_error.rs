@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fmt;
 
 #[derive(Debug)]
-struct NotVipError;
+pub struct NotVipError;
 
 impl fmt::Display for NotVipError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
