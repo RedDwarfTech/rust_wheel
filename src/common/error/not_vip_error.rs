@@ -8,7 +8,7 @@ pub struct NotVipError {
 }
 
 impl NotVipError {
-    fn new(message: String, source: Option<Box<dyn Error + 'static>>) -> NotVipError {
+    pub fn new(message: String, source: Option<Box<dyn Error + 'static>>) -> NotVipError {
         NotVipError { message, source }
     }
 }
