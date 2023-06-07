@@ -84,7 +84,7 @@ impl<T> QueryFragment<Pg> for Paginated<T>
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct QuerySourceToQueryFragment<T> {
-    query_source: T,
+    _query_source: T,
 }
 
 /**
@@ -108,7 +108,7 @@ impl<T> PaginateForQuerySource for T
     where T: QuerySource {
     fn paginate(self, page: i64, is_big_table: bool) -> Paginated<QuerySourceToQueryFragment<Self>> {
         Paginated {
-            query: QuerySourceToQueryFragment {query_source: self},
+            query: QuerySourceToQueryFragment {_query_source: self},
             per_page: 10,
             page,
             is_sub_query: false,

@@ -19,6 +19,7 @@ pub struct LoginUserInfo {
     pub appId: String,
     pub xRequestId: String,
     pub deviceId: String,
+    pub vipExpireTime: i64,
 }
 
 #[derive(Debug)]
@@ -48,6 +49,7 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         let user_id = payload_claims.get("userId");
         let app_id = payload_claims.get("appId");
         let device_id = payload_claims.get("deviceId");
+        let vip_expire_time = payload_claims.get("et");
         match token {
             Some(token) => {
                 let login_user_info = LoginUserInfo {
@@ -56,6 +58,7 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
                     appId: app_id.unwrap().to_string(),
                     xRequestId: x_request_id.unwrap().to_string(),
                     deviceId: device_id.unwrap().to_string(),
+                    vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default()
                 };
                 // check validity
                 Outcome::Success(login_user_info)
