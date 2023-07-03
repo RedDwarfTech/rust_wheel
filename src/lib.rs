@@ -2,5 +2,5 @@
 pub mod model;
 #[cfg(feature = "common")]
 pub mod common;
-#[cfg(feature = "config")]
+#[cfg(feature = "rwconfig")]
 pub mod config;

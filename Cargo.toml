@@ -38,12 +38,12 @@ jsonwebtoken = "8.3.0"
 base64 = "0.4.0"
 
 [features]
-default = ["config", "model", "common"]
-config = []
+default = ["rwconfig", "model", "common"]
+rwconfig = []
 model = []
 common = []
 full = [
-    "config",
+    "rwconfig",
     "model",
     "common",
 ]
