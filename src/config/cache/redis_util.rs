@@ -1,5 +1,6 @@
 use std::env;
-use redis::{Commands, Connection, FromRedisValue, Value};
+use log::error;
+use redis::{Commands, Connection, FromRedisValue, Value, Client};
 
 use crate::config::cache::mobc_error::Error;
 use crate::config::cache::mobc_error::MobcError::{RedisClientError, RedisCMDError, RedisTypeError};
@@ -51,3 +52,26 @@ pub async fn del_redis_key(key: &str) -> Result<()> {
     FromRedisValue::from_redis_value(&del_result).map_err(|e| RedisTypeError(e).into())
 }
 
+pub fn sync_get_str(key: &str) -> redis::RedisResult<Option<String>>{  
+    let config_redis_string = get_config("REDIS_URL");
+    let redis_con_string: &str = config_redis_string.as_str();
+    let redis_client = Client::open(redis_con_string);
+    match redis_client {
+        Ok(client) => {
+            let connection = client.get_connection();
+            match connection {
+                Ok(mut conn) => {
+                    return conn.get(key);
+                },
+                Err(e) => {
+                    error!("Couldn't connect to redis,{}",e);
+                    return Ok(Some("".to_string()));
+                },
+            }
+        },
+        Err(e) => {
+            error!("Couldn't get redis client,{}",e);
+            return Ok(Some("".to_string()));
+        }
+    }
+}
