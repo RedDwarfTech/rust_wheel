@@ -72,7 +72,7 @@ pub fn get_list_size(key: &str) -> Result<usize, Error> {
     Ok(size)
 }
 
-pub fn push_to_stream(stream_key: &str, params: &[(&str, &str)]) {
+pub fn push_data_to_stream(stream_key: &str, params: &[(&str, &str)]) {
     let mut connection = get_con();
     let result = connection.xadd::<&str, &str, &str, &str, String>(
         stream_key,
