@@ -72,17 +72,17 @@ pub fn get_list_size(key: &str) -> Result<usize, Error> {
     Ok(size)
 }
 
-pub fn push_to_stream(stream_key: &str) {
+pub fn push_to_stream<T>(stream_key: &str, params: &[(&str, &str)]) {
     let mut connection = get_con();
     let result = connection.xadd::<&str, &str, &str, &str, String>(
         stream_key,
         "*",
-        &[("id", "2"), ("sub_source_id", "3")],
+        params,
     );
     match result {
         Ok(_) => {}
         Err(e) => {
-            error!("Couldn't send to redis,{}",e);
+            error!("Couldn't send to redis stream,{}",e);
         }
     }
 }
