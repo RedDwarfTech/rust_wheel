@@ -16,6 +16,14 @@ pub fn get_con() -> Connection {
     return con;
 }
 
+pub fn set_value(key: &str, value: &str, ttl_seconds: usize) -> Result<i32, MobcError> {
+    let mut redis_conn = get_con();
+    let set_result: Result<i32, MobcError> = redis_conn
+        .set_ex(key, value, ttl_seconds)
+        .map_err(RedisCMDError);
+    return set_result;
+}
+
 pub fn set_str(con: &mut Connection, key: &str, value: &str, ttl_seconds: usize) {
     let set_result: Result<i32, MobcError> = con.set(key, value).map_err(RedisCMDError);
     match set_result {
@@ -74,15 +82,11 @@ pub fn get_list_size(key: &str) -> Result<usize, Error> {
 
 pub fn push_data_to_stream(stream_key: &str, params: &[(&str, &str)]) {
     let mut connection = get_con();
-    let result = connection.xadd::<&str, &str, &str, &str, String>(
-        stream_key,
-        "*",
-        params,
-    );
+    let result = connection.xadd::<&str, &str, &str, &str, String>(stream_key, "*", params);
     match result {
         Ok(_) => {}
         Err(e) => {
-            error!("Couldn't send to redis stream,{}",e);
+            error!("Couldn't send to redis stream,{}", e);
         }
     }
 }
