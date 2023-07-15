@@ -16,9 +16,9 @@ pub fn get_con() -> Connection {
     return con;
 }
 
-pub fn set_value(key: &str, value: &str, ttl_seconds: usize) -> Result<i32, MobcError> {
+pub fn set_value(key: &str, value: &str, ttl_seconds: usize) -> Result<String, MobcError> {
     let mut redis_conn = get_con();
-    let set_result: Result<i32, MobcError> = redis_conn
+    let set_result: Result<String, MobcError> = redis_conn
         .set_ex(key, value, ttl_seconds)
         .map_err(RedisCMDError);
     return set_result;
