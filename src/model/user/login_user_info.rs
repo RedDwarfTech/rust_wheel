@@ -8,7 +8,7 @@ use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
 use rocket_okapi::gen::OpenApiGenerator;
 use rocket_okapi::request::{OpenApiFromRequest, RequestHeaderInput};
-use serde_json::{from_str};
+use serde_json::from_str;
 
 // https://stackoverflow.com/questions/24102325/warning-function-should-have-a-snake-case-identifier-on-by-default
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]

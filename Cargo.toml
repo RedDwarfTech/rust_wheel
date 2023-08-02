@@ -36,6 +36,7 @@ mobc = "0.8.1"
 thiserror = "1.0"
 jsonwebtoken = "8.3.0"
 base64 = "0.4.0"
+actix-web = "4"
 
 [features]
 default = ["rwconfig", "model", "common"]
