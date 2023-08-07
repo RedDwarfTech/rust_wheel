@@ -1,16 +1,18 @@
 use std::collections::HashMap;
+use std::hash::Hash;
 
-pub trait IntoTree: Sized {
+pub trait IntoTree<E: PartialEq + Eq + Hash>: Sized {
     type Output;
 
-    fn get_id(&self) -> i32;
-    fn get_parent_id(&self) -> i32;
+    fn get_id(&self) -> E;
+    fn get_parent_id(&self) -> E;
     fn convert(&self, children: Vec<Self::Output>) -> Self::Output;
 }
 
-fn take_all_children<T>(parent_id: i32, sub_menus: &mut HashMap<i32, Vec<&T>>) -> Vec<T::Output>
+fn take_all_children<T,E>(parent_id: E, sub_menus: &mut HashMap<E, Vec<&T>>) -> Vec<T::Output>
     where
-        T: IntoTree,
+        T: IntoTree<E>,
+        E: PartialEq + Eq + Hash,
 {
     sub_menus
         .remove(&parent_id)
@@ -23,9 +25,10 @@ fn take_all_children<T>(parent_id: i32, sub_menus: &mut HashMap<i32, Vec<&T>>) -
         .collect()
 }
 
-pub fn convert_to_tree<T>(root_menus: &[T], sub_menus: &[T]) -> Vec<T::Output>
+pub fn convert_to_tree<T,E>(root_menus: &[T], sub_menus: &[T]) -> Vec<T::Output>
     where
-        T: IntoTree,
+        T: IntoTree<E>,
+        E: PartialEq + Eq + Hash,
 {
     let mut sub_menus_by_parent = HashMap::new();
     for sub in sub_menus {
