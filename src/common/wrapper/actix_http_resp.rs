@@ -12,7 +12,8 @@ pub fn box_type_rest_response<T>(data: T) -> ApiResponse<T> where T: Serialize +
     return res;
 }
 
-pub fn box_actix_rest_response<T>(data: T) -> impl Responder where T: Serialize + Default{
+// https://stackoverflow.com/questions/76987201/distinct-uses-of-impl-trait-result-in-different-opaque-types-in-rust
+pub fn box_actix_rest_response<T>(data: T) -> HttpResponse where T: Serialize + Default{
     let res = ApiResponse {
         result: data,
         ..Default::default()
@@ -20,7 +21,7 @@ pub fn box_actix_rest_response<T>(data: T) -> impl Responder where T: Serialize 
     HttpResponse::Ok().json(res)
 }
 
-pub fn box_error_actix_rest_response <T>(data: T, result_code: String, msg: String) -> impl Responder where T: Serialize + Default {
+pub fn box_error_actix_rest_response <T>(data: T, result_code: String, msg: String) -> HttpResponse where T: Serialize + Default {
     let res = ApiResponse {
         result: data,
         statusCode: "200".to_string(),
