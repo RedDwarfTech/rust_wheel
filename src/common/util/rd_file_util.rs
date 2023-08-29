@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, io};
 use log::error;
 use std::path::Path;
 
@@ -23,4 +23,21 @@ pub fn get_filename_without_ext(file_path: &String) -> &str{
         }
     }
     return "unkown";
+}
+
+pub fn remove_dir_recursive(dir_path: &std::path::Path) -> io::Result<()> {
+    if dir_path.is_dir() { 
+        for entry in fs::read_dir(dir_path)? { 
+            let entry = entry?;
+            let entry_path = entry.path();
+            
+            if entry_path.is_dir() {
+                remove_dir_recursive(&entry_path)?; 
+            } else {
+                fs::remove_file(entry_path)?; 
+            }
+        }
+        fs::remove_dir(dir_path)?;
+    }
+    Ok(())
 }
