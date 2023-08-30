@@ -23,8 +23,7 @@ impl<T: std::fmt::Display> futures::Stream for SseStream<T> {
             match receiver.poll_recv(ctx) {
                 std::task::Poll::Ready(Some(data)) => {
                     // Create the SSE event
-                    let message = format!("data: {}\n\n", data);
-    
+                    let message = format!("{}", data);
                     // Return the event as a stream item
                     return std::task::Poll::Ready(Some(Ok(actix_web::web::Bytes::from(message))));
                 }
