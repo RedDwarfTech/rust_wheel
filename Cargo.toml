@@ -37,6 +37,8 @@ thiserror = "1.0"
 jsonwebtoken = "8.3.0"
 base64 = "0.4.0"
 actix-web = "4"
+tokio = { version = "1.17.0", features = ["full"] }
+futures = "0.3"
 
 [features]
 default = ["rwconfig", "model", "common"]
