@@ -1,5 +1,8 @@
+use serde::{Deserialize, Serialize};
+use std::fmt;
 use uuid::Uuid;
 
+#[derive(Deserialize, Serialize)]
 pub struct SSEMessage {
     pub event: Option<String>,
     pub data: String,
@@ -28,5 +31,21 @@ impl SSEMessage {
             id: Some(uuid_string),
             retry: Some(5000),
         }
+    }
+}
+
+impl fmt::Display for SSEMessage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(event) = &self.event {
+            write!(f, "event:{}\n", event)?;
+        }
+        write!(f, "data:{}\n", self.data)?;
+        if let Some(id) = &self.id {
+            write!(f, "id:{}\n", id)?;
+        }
+        if let Some(retry) = &self.retry {
+            write!(f, "retry:{}\n", retry)?;
+        }
+        write!(f, "\n")
     }
 }
