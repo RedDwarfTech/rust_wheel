@@ -1,34 +1,31 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use uuid::Uuid;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone, Copy)]
 pub struct SSEMessage {
-    pub event: Option<String>,
-    pub data: String,
-    pub id: Option<String>,
+    pub event: Option<&'static str>,
+    pub data: &'static str,
+    pub id: Option<&'static str>,
     pub retry: Option<u32>,
 }
 
-impl From<&String> for SSEMessage {
-    fn from(data: &String) -> Self {
+impl From<&'static str> for SSEMessage {
+    fn from(data: &'static str) -> Self {
         Self {
-            event: Some("".to_owned()),
-            data: data.to_string(),
-            id: Some("".to_owned()),
+            event: Some(""),
+            data: data,
+            id: Some(""),
             retry: None,
         }
     }
 }
 
 impl SSEMessage {
-    pub fn from_data(data: &String, event_type: &String) -> Self {
-        let uuid = Uuid::new_v4();
-        let uuid_string = uuid.to_string().replace("-", "");
+    pub fn from_data(data: &'static str, event_type: &'static str) -> Self {
         Self {
-            event: Some(event_type.to_owned()),
-            data: data.to_string(),
-            id: Some(uuid_string),
+            event: Some(event_type),
+            data: data,
+            id: None,
             retry: Some(5000),
         }
     }
