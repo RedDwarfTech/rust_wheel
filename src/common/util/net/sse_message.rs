@@ -9,7 +9,7 @@ pub struct SSEMessage<T> where T: fmt::Display, {
     pub retry: Option<u32>,
 }
 
-impl<T: fmt::Display> From<&String> for SSEMessage<T> {
+impl<T: fmt::Display> From<T> for SSEMessage<T> {
     fn from(data: T) -> Self {
         Self {
             event: Some("".to_string()),
