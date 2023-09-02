@@ -1,29 +1,29 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Deserialize, Serialize, Clone, Copy)]
-pub struct SSEMessage {
-    pub event: Option<&'static str>,
-    pub data: &'static str,
-    pub id: Option<&'static str>,
+#[derive(Deserialize, Serialize, Clone)]
+pub struct SSEMessage<T> where T: fmt::Display, {
+    pub event: Option<String>,
+    pub data: T,
+    pub id: Option<String>,
     pub retry: Option<u32>,
 }
 
-impl From<&'static str> for SSEMessage {
-    fn from(data: &'static str) -> Self {
+impl<T: fmt::Display> From<&String> for SSEMessage<T> {
+    fn from(data: T) -> Self {
         Self {
-            event: Some(""),
+            event: Some("".to_string()),
             data: data,
-            id: Some(""),
+            id: Some("".to_string()),
             retry: None,
         }
     }
 }
 
-impl SSEMessage {
-    pub fn from_data(data: &'static str, event_type: &'static str) -> Self {
+impl<T: fmt::Display> SSEMessage<T> {
+    pub fn from_data(data: T, event_type: &String) -> Self {
         Self {
-            event: Some(event_type),
+            event: Some(event_type.to_string()),
             data: data,
             id: None,
             retry: Some(5000),
@@ -31,7 +31,7 @@ impl SSEMessage {
     }
 }
 
-impl fmt::Display for SSEMessage {
+impl<T: fmt::Display> fmt::Display for SSEMessage<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(event) = &self.event {
             write!(f, "event:{}\n", event)?;
