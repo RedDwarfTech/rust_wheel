@@ -41,3 +41,12 @@ pub fn remove_dir_recursive(dir_path: &std::path::Path) -> io::Result<()> {
     }
     Ok(())
 }
+
+pub fn join_paths<T: AsRef<str>>(paths: &[T]) -> String {
+    let joined = paths
+        .iter()
+        .map(|path| path.as_ref().trim_matches('/'))
+        .collect::<Vec<_>>()
+        .join("/");
+    format!("/{}", joined)
+}
