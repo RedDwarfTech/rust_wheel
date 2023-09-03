@@ -1,13 +1,11 @@
 use log::error;
 use reqwest::Client;
-
 use crate::model::{user::rd_user_info::RdUserInfo, response::api_response::ApiResponse};
 
-pub async fn get_user_info(input_user_id: i64) -> Option<RdUserInfo> {
+pub async fn get_user_info(input_user_id: &i64) -> Option<RdUserInfo> {
     let client = Client::new();
     let url = "http://dolphin-post-service.reddwarf-pro.svc.cluster.local:11014/post/user/";
-    let uid = string_to_static_str(input_user_id.to_string());
-    let resp = client.get(format!("{}{}", url, uid))
+    let resp = client.get(format!("{}{}", url, input_user_id))
     .body("{}")
     .send()
         .await;
@@ -26,8 +24,4 @@ pub async fn get_user_info(input_user_id: i64) -> Option<RdUserInfo> {
         return None;
     }
     Some(resp_result.unwrap().result)
-}
-
-fn string_to_static_str(s: String) -> &'static str {
-    Box::leak(s.into_boxed_str())
 }
