@@ -1,7 +1,7 @@
 use crate::config::cache::mobc_error::Error;
 use crate::config::cache::mobc_error::MobcError::{RedisCMDError, RedisTypeError};
 use log::error;
-use redis::{Commands, Connection, FromRedisValue, Value};
+use redis::{Commands, Connection, FromRedisValue, RedisError, Value};
 use std::env;
 
 use super::mobc_error::MobcError;
@@ -89,4 +89,22 @@ pub fn push_data_to_stream(stream_key: &str, params: &[(&str, &str)]) {
             error!("Couldn't send to redis stream,{}", e);
         }
     }
+}
+
+pub fn push_to_stream(
+    stream_key: &str,
+    group: &str,
+    params: &[(&str, &str)],
+) -> Result<String, RedisError> {
+    let mut connection = get_con();
+    let g_result =
+        connection.xgroup_create_mkstream::<&str, &str, &str, String>(stream_key, group, "$");
+    if let Err(e) = g_result.as_ref() {
+        error!(
+            "create group failed,{},stream key: {}, group: {}",
+            e, stream_key, group
+        );
+        return g_result;
+    }
+    connection.xadd::<&str, &str, &str, &str, String>(stream_key, "*", params)
 }
