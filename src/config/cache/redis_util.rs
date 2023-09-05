@@ -93,6 +93,14 @@ pub fn push_data_to_stream(stream_key: &str, params: &[(&str, &str)]) {
 
 pub fn push_to_stream(
     stream_key: &str,
+    params: &[(&str, &str)],
+) -> Result<String, RedisError> {
+    let mut connection = get_con();
+    connection.xadd::<&str, &str, &str, &str, String>(stream_key, "*", params)
+}
+
+pub fn push_to_group_stream(
+    stream_key: &str,
     group: &str,
     params: &[(&str, &str)],
 ) -> Result<String, RedisError> {
