@@ -46,19 +46,19 @@ pub fn set_str(con: &mut Connection, key: &str, value: &str, ttl_seconds: usize)
     }
 }
 
-pub fn get_str_default(key: &str) -> Result<String, Error> {
+pub fn get_str_default(key: &str) -> Result<Option<String>, Error> {
     let mut redis_conn = get_con();
     let value = redis_conn.get(key).map_err(RedisCMDError)?;
     if Value::Nil == value {
-        return Ok("null".parse().unwrap());
+        return Ok(None);
     }
     FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
 }
 
-pub async fn get_str(con: &mut Connection, key: &str) -> Result<String, Error> {
+pub async fn get_str(con: &mut Connection, key: &str) -> Result<Option<String>, Error> {
     let value = con.get(key).map_err(RedisCMDError)?;
     if Value::Nil == value {
-        return Ok("null".parse().unwrap());
+        return Ok(None);
     }
     FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
 }
