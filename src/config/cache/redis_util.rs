@@ -113,3 +113,9 @@ pub fn push_to_group_stream(
     }
     connection.xadd::<&str, &str, &str, &str, String>(stream_key, "*", params)
 }
+
+pub fn delete_stream_element(stream_key: &str, msg_id: String) -> Result<usize, RedisError> {
+    let mut connection = get_con();
+    let del_result: Result<usize, RedisError> = connection.xdel(stream_key, &[msg_id]);
+    return del_result;
+}
