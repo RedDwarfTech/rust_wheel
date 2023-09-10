@@ -1,4 +1,4 @@
-use std::{fs, io};
+use std::{fs, io, path::PathBuf};
 use log::error;
 use std::path::Path;
 
@@ -49,4 +49,12 @@ pub fn join_paths<T: AsRef<str>>(paths: &[T]) -> String {
         .collect::<Vec<_>>()
         .join("/");
     format!("/{}", joined)
+}
+
+pub fn merge_paths(paths: &[&str]) -> String {
+    let mut merged_path = PathBuf::new();
+    for path in paths {
+        merged_path.push(path);
+    }
+    merged_path.to_string_lossy().into_owned()
 }
