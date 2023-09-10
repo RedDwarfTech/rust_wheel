@@ -3,7 +3,7 @@ use log::error;
 use std::path::Path;
 
 pub fn create_folder_not_exists(folder: &String){
-    match fs::create_dir(&folder) {
+    match fs::create_dir_all(&folder) {
         Ok(_) => {},
         Err(err) => {
             if err.kind() == std::io::ErrorKind::AlreadyExists {
