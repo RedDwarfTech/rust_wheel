@@ -58,3 +58,15 @@ pub fn merge_paths(paths: &[&str]) -> String {
     }
     merged_path.to_string_lossy().into_owned()
 }
+
+pub fn read_file(file_path: &String) -> io::Result<()> {
+    match fs::read_to_string(&file_path) {
+        Ok(content) => {
+            println!("file content：\n{}", content);
+        }
+        Err(error) => {
+            eprintln!("read file failed：{}", error);
+        }
+    }
+    Ok(())
+}
