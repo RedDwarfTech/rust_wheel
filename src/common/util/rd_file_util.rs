@@ -69,3 +69,10 @@ pub fn read_file(file_path: &String) -> Result<String, std::io::Error> {
         }
     }
 }
+
+pub fn create_directory_if_not_exists(path: &str) -> io::Result<()> {
+    if !fs::metadata(path).is_ok() {
+        fs::create_dir_all(path)?;
+    }
+    Ok(())
+}
