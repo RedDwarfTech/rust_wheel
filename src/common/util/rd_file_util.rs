@@ -37,7 +37,7 @@ pub fn remove_dir_recursive(dir_path: &std::path::Path) -> io::Result<()> {
                 fs::remove_file(entry_path)?; 
             }
         }
-        fs::remove_dir(dir_path)?;
+        fs::remove_dir_all(dir_path)?;
     }
     Ok(())
 }
@@ -59,14 +59,13 @@ pub fn merge_paths(paths: &[&str]) -> String {
     merged_path.to_string_lossy().into_owned()
 }
 
-pub fn read_file(file_path: &String) -> io::Result<()> {
+pub fn read_file(file_path: &String) -> Result<String, std::io::Error> {
     match fs::read_to_string(&file_path) {
         Ok(content) => {
-            println!("file content：\n{}", content);
+            return Ok(content);
         }
         Err(error) => {
-            eprintln!("read file failed：{}", error);
+            return Err(error);
         }
     }
-    Ok(())
 }
