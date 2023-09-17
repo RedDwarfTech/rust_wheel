@@ -46,6 +46,7 @@ pub fn join_paths<T: AsRef<str>>(paths: &[T]) -> String {
     let joined = paths
         .iter()
         .map(|path| path.as_ref().trim_matches('/'))
+        .filter(|path| !path.is_empty())
         .collect::<Vec<_>>()
         .join("/");
     format!("/{}", joined)
