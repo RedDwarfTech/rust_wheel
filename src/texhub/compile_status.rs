@@ -1,3 +1,4 @@
+#[derive(Debug, PartialEq, PartialOrd)]
 pub enum CompileStatus {
     Queued = 0,
     Compiling = 1,
