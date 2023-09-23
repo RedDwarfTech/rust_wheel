@@ -46,11 +46,12 @@ uuid = {version = "1.4.1",features = [
 ]}
 
 [features]
-default = ["rwconfig", "model", "common", "texhub"]
+default = ["rwconfig", "model", "common", "texhub", "cruise"]
 rwconfig = []
 model = []
 common = []
 texhub = []
+cruise = []
 full = [
     "rwconfig",
     "model",

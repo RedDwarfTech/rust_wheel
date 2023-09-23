@@ -6,3 +6,5 @@ pub mod common;
 pub mod config;
 #[cfg(feature = "texhub")]
 pub mod texhub;
+#[cfg(feature = "cruise")]
+pub mod cruise;
