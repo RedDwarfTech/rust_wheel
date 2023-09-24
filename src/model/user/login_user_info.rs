@@ -1,5 +1,4 @@
 use rocket::{Request, request};
-use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::FromRequest;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -28,6 +27,15 @@ pub enum ApiTokenError {
     Invalid,
 }
 
+fn get_auth_header(req: &Request<'_>) -> String {
+    let token = req.headers().get_one("Authorization");
+    if token.unwrap().starts_with("Bearer ") {
+        let token = token.unwrap().trim_start_matches("Bearer ");
+        return token.to_string();
+    }
+    return "".to_string();
+}
+
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for LoginUserInfo {
     type Error = ApiTokenError;
@@ -39,9 +47,9 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         // 与 HTTP/1.x 中一样， header 字段名称是 ASCII 字符串，以不区分大小写的方式进行比较。
         // 但是，在 HTTP/2 编码之前，必须将 Header 头字段名称转换为小写。
         // 包含大写 header 字段名称的请求或响应必须被视为格式错误（第 8.1.2.6 节）。
-        let token = request.headers().get_one("x-access-token");
+        let token = get_auth_header(request);
         let x_request_id = request.headers().get_one("x-request-id");
-        let parts: Vec<&str> = token.unwrap().split(".").collect();
+        let parts: Vec<&str> = token.split(".").collect();
         let payload_base64 = parts[1];
         let payload_str = base64::decode(payload_base64).unwrap();
         let payload_json = from_str::<serde_json::Value>(&String::from_utf8(payload_str).unwrap()).unwrap();
@@ -50,21 +58,17 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         let app_id = payload_claims.get("appId");
         let device_id = payload_claims.get("deviceId");
         let vip_expire_time = payload_claims.get("et");
-        match token {
-            Some(token) => {
-                let login_user_info = LoginUserInfo {
-                    token: token.to_string(),
-                    userId: user_id.unwrap().as_i64().unwrap(),
-                    appId: app_id.unwrap().to_string(),
-                    xRequestId: x_request_id.unwrap().to_string(),
-                    deviceId: device_id.unwrap().to_string(),
-                    vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default()
-                };
-                // check validity
-                Outcome::Success(login_user_info)
-            }
-            None => Outcome::Failure((Status::Unauthorized, ApiTokenError::Missing)),
-        }
+        let login_user_info = LoginUserInfo {
+            token: token.to_string(),
+            userId: user_id.unwrap().as_i64().unwrap(),
+            appId: app_id.unwrap().to_string(),
+            xRequestId: x_request_id.unwrap().to_string(),
+            deviceId: device_id.unwrap().to_string(),
+            vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default()
+        };
+        // check validity
+        Outcome::Success(login_user_info)
+         
     }
 }
 
