@@ -1,7 +1,7 @@
 
 use diesel::prelude::*;
 use diesel::query_dsl::methods::LoadQuery;
-use diesel::query_builder::{QueryFragment, Query};
+use diesel::query_builder::{QueryFragment, Query, AstPass};
 use diesel::pg::Pg;
 use diesel::sql_types::BigInt;
 use diesel::QueryId;
@@ -69,36 +69,31 @@ impl<T: Query> Query for Paginated<T> {
 
 impl<T> RunQueryDsl<PgConnection> for Paginated<T> {}
 
-/** 
 impl<T> QueryFragment<Pg> for Paginated<T>
     where
         T: QueryFragment<Pg>,
 {
     fn walk_ast(&self, out: AstPass<Pg>) -> QueryResult<()> {
-        handle_table_query(&self, out).expect("TODO: panic message");
+        // handle_table_query(&self, out).expect("TODO: panic message");
         Ok(())
     }
 }
-**/
-
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct QuerySourceToQueryFragment<T> {
     _query_source: T,
 }
 
-/**
 impl<FC, T> QueryFragment<Pg> for QuerySourceToQueryFragment<T>
     where
         FC: QueryFragment<Pg>,
         T: QuerySource<FromClause=FC>,
 {
     fn walk_ast(&self, mut out: AstPass<Pg>) -> QueryResult<()> {
-        self.query_source.from_clause().walk_ast(out.reborrow())?;
+        // self.query_source.from_clause().walk_ast(out.reborrow())?;
         Ok(())
     }
 }
- */
 
 pub trait PaginateForQuerySource: Sized {
     fn paginate(self, page: i64, is_big_table: bool) -> Paginated<QuerySourceToQueryFragment<Self>>;
