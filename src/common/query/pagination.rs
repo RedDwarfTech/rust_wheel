@@ -11,6 +11,8 @@ impl<T> Paginate for T {
             per_page: DEFAULT_PER_PAGE,
             page,
             offset: (page - 1) * DEFAULT_PER_PAGE,
+            is_sub_query: false,
+            is_big_table: false,
         }
     }
 }
@@ -19,10 +21,12 @@ const DEFAULT_PER_PAGE: i64 = 10;
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct Paginated<T> {
-    query: T,
-    page: i64,
-    per_page: i64,
-    offset: i64,
+    pub query: T,
+    pub page: i64,
+    pub per_page: i64,
+    pub offset: i64,
+    pub is_sub_query: bool,
+    pub is_big_table: bool,
 }
 
 impl<T> Paginated<T> {
