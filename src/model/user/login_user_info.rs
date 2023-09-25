@@ -7,7 +7,7 @@ use rocket::serde::Deserialize;
 use rocket::serde::Serialize;
 use rocket_okapi::gen::OpenApiGenerator;
 use rocket_okapi::request::{OpenApiFromRequest, RequestHeaderInput};
-use serde_json::from_str;
+use serde_json::{from_str, Value};
 
 // https://stackoverflow.com/questions/24102325/warning-function-should-have-a-snake-case-identifier-on-by-default
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
@@ -57,16 +57,15 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         let user_id = payload_claims.get("userId");
         let app_id = payload_claims.get("appId");
         let device_id = payload_claims.get("deviceId");
-        let vip_expire_time = payload_claims.get("et");
+        let vip_expire_time:Option<&Value> = payload_claims.get("et");
         let login_user_info = LoginUserInfo {
             token: token.to_string(),
             userId: user_id.unwrap().as_i64().unwrap(),
             appId: app_id.unwrap().to_string(),
             xRequestId: x_request_id.unwrap().to_string(),
             deviceId: device_id.unwrap().to_string(),
-            vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default()
+            vipExpireTime: vip_expire_time.unwrap_or(&Value::Null).as_i64().unwrap_or_default()
         };
-        // check validity
         Outcome::Success(login_user_info)
          
     }
