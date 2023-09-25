@@ -1,23 +1,5 @@
 use diesel::{query_dsl::methods::LoadQuery, PgConnection, QueryResult, RunQueryDsl, query_builder::{QueryFragment, AstPass, Query, QueryId}, pg::Pg, sql_types::BigInt};
 
-pub trait PaginateForQueryFragment: Sized {
-    fn paginate(self, page: i64, is_big_table: bool) -> Paginated<Self>;
-}
-
-impl<T> PaginateForQueryFragment for T
-    where T: QueryFragment<Pg>{
-    fn paginate(self, page: i64, is_big_table: bool) -> Paginated<Self> {
-        Paginated {
-            query: self,
-            per_page: 10,
-            page,
-            is_sub_query: true,
-            is_big_table,
-            offset: (page - 1) * DEFAULT_PER_PAGE,
-        }
-    }
-}
-
 pub trait Paginate: Sized {
     fn paginate(self, page: i64) -> Paginated<Self>;
 }
