@@ -8,5 +8,3 @@ pub struct PaginationResponse<T> {
     pub pagination: Pagination,
     pub list: T
 }
-
-
