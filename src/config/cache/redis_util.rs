@@ -1,18 +1,25 @@
+use super::mobc_error::MobcError;
 use crate::config::cache::mobc_error::Error;
 use crate::config::cache::mobc_error::MobcError::{RedisCMDError, RedisTypeError};
 use log::error;
 use redis::{Commands, Connection, FromRedisValue, RedisError, Value};
 use std::env;
 
-use super::mobc_error::MobcError;
-
 pub fn get_con() -> Connection {
     let config_redis_string: String = env::var("REDIS_URL").expect("redis url missing");
-    let redis_con_string: &str = config_redis_string.as_str();
-    let redis_client = redis::Client::open(redis_con_string).expect("get redis client failed");
+    let redis_client =
+        redis::Client::open(config_redis_string.as_str()).expect("get redis client failed");
     let con = redis_client
         .get_connection()
         .expect("get redis connection failed");
+    return con;
+}
+
+pub fn get_redis_conn(conn_url: &str) -> Connection {
+    let redis_client = redis::Client::open(conn_url).expect("get redis client by url failed");
+    let con = redis_client
+        .get_connection()
+        .expect("get redis connection by url failed");
     return con;
 }
 
