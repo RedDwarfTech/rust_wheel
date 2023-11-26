@@ -4,3 +4,13 @@ pub enum CompileResult {
     Failure = 1,
     Unknown = -1
 }
+
+impl From<CompileResult> for i32 {
+    fn from(result: CompileResult) -> Self {
+        match result {
+            CompileResult::Success => 0,
+            CompileResult::Failure => 1,
+            CompileResult::Unknown => -1,
+        }
+    }
+}
