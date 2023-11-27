@@ -1,5 +1,6 @@
 use super::login_user_info::LoginUserInfo;
 use actix_web::error::ErrorUnauthorized;
+use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
 use core::fmt;
@@ -43,9 +44,10 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String>{
     if q_str.is_empty() {
         return None;
     }
-    let params: HashMap<String, String> = from_str(q_str).unwrap();
+    let params = Query::<HashMap<String, String>>::from_query(request.query_string())
+    .unwrap();
     let access_token = params.get("access_token");
-    return access_token.map(|s|s.clone());
+    return access_token.map(|s|s.to_owned());
 }
 
 /// get token from the http standard Authorization by default
