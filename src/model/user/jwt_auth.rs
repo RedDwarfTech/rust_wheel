@@ -3,6 +3,7 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
 use core::fmt;
+use std::collections::HashMap;
 use reqwest::header::{HeaderValue, ToStrError};
 use serde::Serialize;
 use serde_json::from_str;
@@ -25,23 +26,43 @@ fn get_header_value(header_value: &HeaderValue) -> Result<&str, ToStrError> {
     return value_str;
 }
 
-fn get_auth_header(req: &HttpRequest) -> &str {
+fn get_auth_header(req: &HttpRequest) -> Option<String> {
     if let Some(auth_header) = req.headers().get("Authorization") {
         if let Ok(header_value) = auth_header.to_str() {
             if header_value.starts_with("Bearer ") {
                 let token = header_value.trim_start_matches("Bearer ");
-                return token;
+                return Some(token.to_string());
             }
         }
     }
-    return "";
+    return None;
+}
+
+fn get_params_access_token(request: &HttpRequest) -> Option<String>{
+    let q_str = request.query_string();
+    if q_str.is_empty() {
+        return None;
+    }
+    let params: HashMap<String, String> = from_str(q_str).unwrap();
+    let access_token = params.get("access_token");
+    return access_token.map(|s|s.clone());
+}
+
+/// get token from the http standard Authorization by default
+/// if failed, get the token from http query parameter 'access_token'
+fn get_auth_token(req: &HttpRequest) -> String {
+    let mut token = get_auth_header(req);
+    if token.is_none() {
+        token = get_params_access_token(req);
+    }
+    return token.unwrap_or_default();
 }
 
 impl FromRequest for LoginUserInfo {
     type Error = ActixWebError;
     type Future = Ready<Result<Self, Self::Error>>;
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let token = get_auth_header(req);
+        let token = get_auth_token(req);
         let x_request_id = req.headers().get("x-request-id");
         if !token.is_empty() {
             let parts: Vec<&str> = token.split(".").collect();
