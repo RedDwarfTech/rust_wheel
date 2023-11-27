@@ -3,6 +3,7 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
+use uuid::Uuid;
 use core::fmt;
 use std::collections::HashMap;
 use reqwest::header::{HeaderValue, ToStrError};
@@ -77,11 +78,17 @@ impl FromRequest for LoginUserInfo {
             let app_id = payload_claims.get("appId");
             let device_id = payload_claims.get("deviceId");
             let vip_expire_time = payload_claims.get("et");
+            let x_request_id_value = if x_request_id.is_some() {
+                get_header_value(x_request_id.unwrap()).unwrap().to_string()
+            } else{
+                let uuid = Uuid::new_v4();
+                uuid.to_string()
+            };
             let login_user_info = LoginUserInfo {
                 token: token.to_string(),
                 userId: user_id.unwrap().as_i64().unwrap(),
                 appId: app_id.unwrap().to_string(),
-                xRequestId: get_header_value(x_request_id.unwrap()).unwrap().to_string(),
+                xRequestId: x_request_id_value,
                 deviceId: device_id.unwrap().to_string(),
                 vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default(),
             };
