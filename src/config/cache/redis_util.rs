@@ -70,7 +70,7 @@ pub async fn get_str(con: &mut Connection, key: &str) -> Result<Option<String>, 
     FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
 }
 
-pub async fn del_redis_key(key: &str) -> Result<(), Error> {
+pub fn del_redis_key(key: &str) -> Result<(), Error> {
     let mut redis_conn_unwrap = get_con();
     let del_result = redis_conn_unwrap.del(key).map_err(RedisCMDError)?;
     FromRedisValue::from_redis_value(&del_result).map_err(|e| RedisTypeError(e).into())
