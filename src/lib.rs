@@ -4,3 +4,7 @@ pub mod model;
 pub mod common;
 #[cfg(feature = "rwconfig")]
 pub mod config;
+#[cfg(feature = "texhub")]
+pub mod texhub;
+#[cfg(feature = "cruise")]
+pub mod cruise;
