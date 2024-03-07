@@ -10,7 +10,7 @@ use rocket_okapi::request::{OpenApiFromRequest, RequestHeaderInput};
 use serde_json::{from_str, Value};
 
 // https://stackoverflow.com/questions/24102325/warning-function-should-have-a-snake-case-identifier-on-by-default
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, JsonSchema, Clone)]
 #[allow(non_snake_case)]
 pub struct LoginUserInfo {
     pub token: String,
