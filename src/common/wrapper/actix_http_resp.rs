@@ -1,4 +1,4 @@
-use crate::model::response::api_response::ApiResponse;
+use crate::model::{error::custom_error::CustomError, response::api_response::ApiResponse};
 use actix_web::HttpResponse;
 use serde::Serialize;
 
@@ -51,6 +51,19 @@ where
         statusCode: "200".to_string(),
         resultCode: result_code,
         msg,
+    };
+    return res;
+}
+
+pub fn box_error_response<T>(data: T, err: CustomError) -> ApiResponse<T>
+where
+    T: Serialize + Default,
+{
+    let res = ApiResponse {
+        result: data,
+        statusCode: "200".to_string(),
+        resultCode: "code from err".to_owned(),
+        msg: "msg from err".to_owned(),
     };
     return res;
 }

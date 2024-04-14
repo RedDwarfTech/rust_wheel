@@ -6,7 +6,8 @@ use rocket::serde::Serialize;
 pub struct LoginResponse {
     pub registerTime: i64,
     pub refreshToken: String,
-    pub accessToken: String
+    pub accessToken: String,
+    pub nickname: String,
 }
 
 impl Default for LoginResponse {
@@ -14,7 +15,8 @@ impl Default for LoginResponse {
         LoginResponse {
             registerTime: 0,
             refreshToken: "".to_string(),
-            accessToken: "".to_string()
+            accessToken: "".to_string(),
+            nickname: "".to_string(),
         }
     }
 }
