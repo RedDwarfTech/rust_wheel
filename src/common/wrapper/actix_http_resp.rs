@@ -63,7 +63,7 @@ where
         result: data,
         statusCode: "200".to_string(),
         resultCode: "code from err".to_owned(),
-        msg: "msg from err".to_owned(),
+        msg: err.to_string(),
     };
     return res;
 }

@@ -24,6 +24,7 @@ pub fn end_of_today() -> i64 {
         .date_naive()
         .and_hms_milli_opt(23, 59, 59, 999)
         .unwrap()
+        .and_utc()
         .timestamp_millis()
 }
 
@@ -32,6 +33,7 @@ pub fn start_of_today() -> i64 {
         .date_naive()
         .and_hms_milli_opt(0, 0, 0, 0)
         .unwrap()
+        .and_utc()
         .timestamp_millis()
 }
 
@@ -41,6 +43,7 @@ pub fn start_of_month() -> i64 {
     let start_of_month = nd
         .and_hms_milli_opt(0, 0, 0, 000)
         .unwrap()
+        .and_utc()
         .timestamp_millis();
     return start_of_month;
 }
@@ -48,7 +51,10 @@ pub fn start_of_month() -> i64 {
 pub fn end_of_month() -> i64 {
     let local = Local::now();
     let nd = last_day_of_month(local.year(), local.month());
-    let end_of_month = nd.and_hms_milli_opt(23, 59, 59, 999).unwrap().timestamp_millis();
+    let end_of_month = nd.and_hms_milli_opt(23, 59, 59, 999)
+    .unwrap()
+    .and_utc()
+    .timestamp_millis();
     return end_of_month;
 }
 
