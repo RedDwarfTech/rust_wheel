@@ -76,9 +76,14 @@ pub fn del_redis_key(key: &str) -> Result<(), Error> {
     FromRedisValue::from_redis_value(&del_result).map_err(|e| RedisTypeError(e).into())
 }
 
-pub fn sync_get_str(key: &str) -> redis::RedisResult<Option<String>> {
+pub fn sync_get_str(key: &str) -> Option<String> {
     let mut connection = get_con();
-    return connection.get(key);
+    let redis_result = connection.get(key);
+    if let Err(e) = redis_result {
+        error!("get redis key failed,{}", e);
+        return None;
+    }
+    return redis_result.unwrap();
 }
 
 pub fn get_list_size(key: &str) -> Result<usize, Error> {
