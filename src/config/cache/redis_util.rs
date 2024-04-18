@@ -99,6 +99,12 @@ pub fn del_redis_key(key: &str) -> Result<(), Error> {
     FromRedisValue::from_redis_value(&del_result).map_err(|e| RedisTypeError(e).into())
 }
 
+pub fn incre_redis_key(key: &str, incre_value: i32) -> Result<(), Error> {
+    let mut redis_conn_unwrap = get_con();
+    let incr_result = redis_conn_unwrap.incr(key,incre_value).map_err(RedisCMDError)?;
+    FromRedisValue::from_redis_value(&incr_result).map_err(|e| RedisTypeError(e).into())
+}
+
 pub fn sync_get_str(key: &str) -> Option<String> {
     let mut connection = get_con();
     let redis_result = connection.get(key);
