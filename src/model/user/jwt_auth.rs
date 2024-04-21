@@ -1,6 +1,5 @@
-use crate::model::jwt::claims::Claims;
 use super::login_user_info::LoginUserInfo;
-use super::rd_user_info::RdUserInfo;
+use super::web_jwt_payload::WebJwtPayload;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
@@ -64,18 +63,10 @@ fn get_auth_token(req: &HttpRequest) -> String {
     return token.unwrap_or_default();
 }
 
-pub fn create_access_token(user_info: &RdUserInfo) -> String {
-    let expiration = chrono::Utc::now() + chrono::Duration::hours(12);
-    let rd_claim = Claims {
-        user_id: user_info.id,
-        device_id: user_info.device_id.to_string(),
-        app_id: user_info.app_id.to_string(),
-        exp: expiration.timestamp_millis(),
-        pin: 0,
-    };
+pub fn create_access_token(jwt_payload: &WebJwtPayload) -> String {
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let key = &EncodingKey::from_secret(jwt_secret.as_ref());
-    let token = encode(&Header::default(), &rd_claim, key);
+    let token = encode(&Header::default(), &jwt_payload, key);
     return token.unwrap();
 }
 
