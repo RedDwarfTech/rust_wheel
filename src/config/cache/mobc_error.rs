@@ -11,8 +11,6 @@ pub enum Error {
 
 #[derive(Error, Debug)]
 pub enum MobcError {
-    #[error("could not get redis connection from pool : {0}")]
-    RedisPoolError(mobc::Error<mobc_redis::redis::RedisError>),
     #[error("error parsing string from redis result: {0}")]
     RedisTypeError(redis::RedisError),
     #[error("error executing redis command: {0}")]

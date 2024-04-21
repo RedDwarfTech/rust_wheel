@@ -43,6 +43,3 @@ pub fn convert_to_tree<T>(root_menus: &[T], sub_menus: &[T]) -> Vec<T::Output>
         })
         .collect()
 }
-
-
-

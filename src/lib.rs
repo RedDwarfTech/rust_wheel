@@ -1,19 +1,10 @@
+#[cfg(feature = "model")]
 pub mod model;
+#[cfg(feature = "common")]
 pub mod common;
+#[cfg(feature = "rwconfig")]
 pub mod config;
-
-#[cfg(test)]
-mod tests {
-    use crate::common::util::time_util::get_current_millisecond;
-
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-
-    #[test]
-    fn get_milliseconds(){
-        let mini = get_current_millisecond();
-        print!("{}",mini)
-    }
-}
+#[cfg(feature = "texhub")]
+pub mod texhub;
+#[cfg(feature = "cruise")]
+pub mod cruise;

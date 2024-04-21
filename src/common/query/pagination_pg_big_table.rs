@@ -1,12 +1,11 @@
 
 use diesel::prelude::*;
 use diesel::query_dsl::methods::LoadQuery;
-use diesel::query_builder::{QueryFragment, Query, AstPass};
+use diesel::query_builder::{QueryFragment, Query};
 use diesel::pg::Pg;
 use diesel::sql_types::BigInt;
 use diesel::QueryId;
 use serde::{Serialize, Deserialize};
-use crate::common::query::page_query_handler::{handle_big_table_query};
 
 pub trait PaginateForPgBigTableQueryFragment: Sized {
     fn paginate_pg_big_table(self, page: i64, table_name: String) -> PgBigTablePaginated<Self>;
@@ -39,9 +38,9 @@ impl<T> PgBigTablePaginated<T> {
         PgBigTablePaginated { per_page, ..self }
     }
 
-    pub fn pg_big_table_load_and_count_pages<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64)>
+    pub fn pg_big_table_load_and_count_pages<U>(self,conn: &mut PgConnection) -> QueryResult<(Vec<U>, i64)>
         where
-            Self: LoadQuery<PgConnection, (U, i64)>,
+            Self: for<'a> LoadQuery<'a, PgConnection, (U, i64)>,
     {
         let per_page = self.per_page;
         let results = self.load::<(U, i64)>(conn)?;
@@ -51,9 +50,9 @@ impl<T> PgBigTablePaginated<T> {
         Ok((records, total_pages))
     }
 
-    pub fn pg_big_table_load_and_count_pages_total<U>(self, conn: &PgConnection) -> QueryResult<(Vec<U>, i64, i64)>
+    pub fn pg_big_table_load_and_count_pages_total<U>(self, conn: &mut PgConnection) -> QueryResult<(Vec<U>, i64, i64)>
         where
-            Self: LoadQuery<PgConnection, (U, i64)>,
+            Self: for<'a> LoadQuery<'a, PgConnection, (U, i64)>,
     {
         let per_page = self.per_page;
         let results = self.load::<(U, i64)>(conn)?;
@@ -70,7 +69,7 @@ impl<T: Query> Query for PgBigTablePaginated<T> {
 
 impl<T> RunQueryDsl<PgConnection> for PgBigTablePaginated<T> {}
 
-
+/** 
 impl<T> QueryFragment<Pg> for PgBigTablePaginated<T>
     where
         T: QueryFragment<Pg>,
@@ -80,12 +79,14 @@ impl<T> QueryFragment<Pg> for PgBigTablePaginated<T>
         Ok(())
     }
 }
+**/
 
 #[derive(Debug, Clone, Copy, QueryId)]
 pub struct PgBigTableQuerySourceToQueryFragment<T> {
-    query_source: T,
+    _query_source: T,
 }
 
+/** 
 impl<FC, T> QueryFragment<Pg> for PgBigTableQuerySourceToQueryFragment<T>
     where
         FC: QueryFragment<Pg>,
@@ -96,6 +97,7 @@ impl<FC, T> QueryFragment<Pg> for PgBigTableQuerySourceToQueryFragment<T>
         Ok(())
     }
 }
+**/
 
 pub trait PaginateForPgBigTableQuerySource: Sized {
     fn paginate_pg_big_table(self, page: i64, table_name: String) -> PgBigTablePaginated<PgBigTableQuerySourceToQueryFragment<Self>>;
@@ -105,7 +107,7 @@ impl<T> PaginateForPgBigTableQuerySource for T
     where T: QuerySource {
     fn paginate_pg_big_table(self, page: i64, table_name: String) -> PgBigTablePaginated<PgBigTableQuerySourceToQueryFragment<Self>> {
         PgBigTablePaginated {
-            query: PgBigTableQuerySourceToQueryFragment {query_source: self},
+            query: PgBigTableQuerySourceToQueryFragment {_query_source: self},
             per_page: 10,
             page,
             is_sub_query: false,

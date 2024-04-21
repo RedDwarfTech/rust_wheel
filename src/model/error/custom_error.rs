@@ -3,9 +3,9 @@ use crate::model::error::user::user_info_not_match::UserInfoNotMatchError;
 
 #[derive(Debug)]
 pub enum CustomError {
-    HttpError,
-    ParseError,
-    UserInfoNotMatchError,
+    HttpError = 0,
+    ParseError = 1,
+    UserInfoNotMatchError = 2,
 }
 
 impl std::error::Error for CustomError {}

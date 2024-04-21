@@ -6,7 +6,7 @@ use rocket::{Request, Response};
 use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::okapi::schemars;
 
-#[derive(Debug, PartialEq, Eq, Deserialize, JsonSchema, Serialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, JsonSchema, Serialize, Clone)]
 #[allow(non_snake_case)]
 pub struct ApiResponse<T> {
     pub result: T,

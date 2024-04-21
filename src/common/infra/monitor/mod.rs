@@ -1,0 +1,1 @@
+pub mod actix_health_controller;

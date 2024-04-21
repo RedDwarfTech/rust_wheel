@@ -6,7 +6,5 @@ use rocket::serde::Serialize;
 #[allow(non_snake_case)]
 pub struct PaginationResponse<T> {
     pub pagination: Pagination,
-    pub list: T
+    pub data: T
 }
-
-
