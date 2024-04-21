@@ -96,9 +96,10 @@ impl FromRequest for LoginUserInfo {
             let login_user_info = LoginUserInfo {
                 token: token.to_string(),
                 userId: user_id.unwrap().as_i64().unwrap(),
-                appId: app_id.unwrap().to_string(),
+                // https://stackoverflow.com/questions/72345657/how-do-i-get-the-string-value-of-a-json-value-without-quotes
+                appId: app_id.unwrap().as_str().expect("get app id failed").to_string(),
                 xRequestId: x_request_id_value,
-                deviceId: device_id.unwrap().to_string(),
+                deviceId: device_id.unwrap().as_str().expect("get device id failed").to_string(),
                 vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default(),
             };
             ready(Ok(login_user_info))
