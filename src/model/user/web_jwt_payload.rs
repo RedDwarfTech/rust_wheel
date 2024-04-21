@@ -1,8 +1,12 @@
 use serde::{Serialize, Deserialize};
 
+/**
+ * this jwt payload used for the customer client
+ * maybe different with the bizinesse client
+ */
 #[derive(Serialize, Deserialize, Clone)]
 #[allow(non_snake_case)]
-pub struct JwtPayload {
+pub struct WebJwtPayload {
     pub userId: i64, 
     pub deviceId: String,
     pub appId: String,
