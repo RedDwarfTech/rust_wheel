@@ -5,12 +5,13 @@ use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
 use core::fmt;
-use std::env;
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jsonwebtoken::errors::ErrorKind;
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
 use reqwest::header::{HeaderValue, ToStrError};
 use serde::Serialize;
 use serde_json::from_str;
 use std::collections::HashMap;
+use std::env;
 use std::future::{ready, Ready};
 use uuid::Uuid;
 
@@ -70,6 +71,18 @@ pub fn create_access_token(jwt_payload: &WebJwtPayload) -> String {
     return token.unwrap();
 }
 
+pub fn verify_jwt_token(token: &str, secret_key: &str) -> bool {
+    let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
+
+    match decode::<serde_json::Value>(token, &decoding_key, &Default::default()) {
+        Ok(_) => true,
+        Err(err) => match *err.kind() {
+            ErrorKind::InvalidToken => false,
+            _ => false,
+        },
+    }
+}
+
 impl FromRequest for LoginUserInfo {
     type Error = ActixWebError;
     type Future = Ready<Result<Self, Self::Error>>;
@@ -97,9 +110,17 @@ impl FromRequest for LoginUserInfo {
                 token: token.to_string(),
                 userId: user_id.unwrap().as_i64().unwrap(),
                 // https://stackoverflow.com/questions/72345657/how-do-i-get-the-string-value-of-a-json-value-without-quotes
-                appId: app_id.unwrap().as_str().expect("get app id failed").to_string(),
+                appId: app_id
+                    .unwrap()
+                    .as_str()
+                    .expect("get app id failed")
+                    .to_string(),
                 xRequestId: x_request_id_value,
-                deviceId: device_id.unwrap().as_str().expect("get device id failed").to_string(),
+                deviceId: device_id
+                    .unwrap()
+                    .as_str()
+                    .expect("get device id failed")
+                    .to_string(),
                 vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default(),
             };
             ready(Ok(login_user_info))
