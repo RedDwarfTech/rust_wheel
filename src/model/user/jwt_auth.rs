@@ -56,7 +56,7 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
 
 /// get token from the http standard Authorization by default
 /// if failed, get the token from http query parameter 'access_token'
-fn get_auth_token(req: &HttpRequest) -> String {
+pub fn get_auth_token(req: &HttpRequest) -> String {
     let mut token = get_auth_header(req);
     if token.is_none() {
         token = get_params_access_token(req);
@@ -71,7 +71,8 @@ pub fn create_access_token(jwt_payload: &WebJwtPayload) -> String {
     return token.unwrap();
 }
 
-pub fn verify_jwt_token(token: &str, secret_key: &str) -> bool {
+pub fn verify_jwt_token(token: &str) -> bool {
+    let secret_key = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
 
     match decode::<serde_json::Value>(token, &decoding_key, &Default::default()) {
