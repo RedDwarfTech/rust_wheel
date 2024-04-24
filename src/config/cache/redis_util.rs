@@ -48,8 +48,8 @@ pub fn set_str_with_conn(con: &mut Connection, key: &str, value: &str, ttl_secon
                 }
             }
         }
-        Err(_) => {
-            error!("set redis {} value error", key);
+        Err(e) => {
+            error!("with conn set redis {} value error, {}", key, e);
         }
     }
 }
@@ -71,8 +71,8 @@ pub fn set_str(key: &str, value: &str, ttl_seconds: usize) {
                 }
             }
         }
-        Err(_) => {
-            error!("set redis {} value error", key);
+        Err(e) => {
+            error!("set redis {} value error, {}", key, e);
         }
     }
 }
