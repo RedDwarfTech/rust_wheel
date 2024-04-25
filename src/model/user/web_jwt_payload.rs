@@ -12,5 +12,6 @@ pub struct WebJwtPayload {
     pub appId: String,
     pub lt: i32,
     pub et: i64,
-    pub pid: i32
+    pub pid: i32,
+    pub exp: usize,
 }
