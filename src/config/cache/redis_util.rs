@@ -56,7 +56,7 @@ pub fn set_str_with_conn(con: &mut Connection, key: &str, value: &str, ttl_secon
 
 pub fn set_str(key: &str, value: &str, ttl_seconds: usize) {
     let mut con = get_con();
-    let set_result: Result<i32, MobcError> = con.set(key, value).map_err(RedisCMDError);
+    let set_result: Result<String, MobcError> = con.set(key, value).map_err(RedisCMDError);
     match set_result {
         Ok(_) => {
             if ttl_seconds > 0 {
