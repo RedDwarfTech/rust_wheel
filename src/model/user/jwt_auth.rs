@@ -1,3 +1,5 @@
+use crate::common::error::jwt_token_error::JwtTokenError;
+
 use super::login_user_info::LoginUserInfo;
 use super::web_jwt_payload::WebJwtPayload;
 use actix_web::error::ErrorUnauthorized;
@@ -71,15 +73,23 @@ pub fn create_access_token(jwt_payload: &WebJwtPayload) -> String {
     return token.unwrap();
 }
 
-pub fn verify_jwt_token(token: &str) -> bool {
+pub fn verify_jwt_token(token: &str) -> JwtTokenError {
     let secret_key = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
-
     match decode::<serde_json::Value>(token, &decoding_key, &Default::default()) {
-        Ok(_) => true,
+        Ok(token_data) => {
+            if let Some(exp) = token_data.claims.get("exp") {
+                let current_time = chrono::Utc::now().timestamp();
+                let exp_time1 = exp.as_i64().unwrap();
+                if exp_time1 < current_time {
+                    return JwtTokenError::Expired;
+                }
+            }
+            JwtTokenError::Valid
+        }
         Err(err) => match *err.kind() {
-            ErrorKind::InvalidToken => false,
-            _ => false,
+            ErrorKind::InvalidToken => JwtTokenError::Invalid,
+            _ => JwtTokenError::OtherError,
         },
     }
 }
