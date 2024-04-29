@@ -56,12 +56,35 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
     return access_token.map(|s| s.to_owned());
 }
 
+fn get_forward_params_access_token(request: &HttpRequest) -> Option<String> {
+    if let Some(auth_header) = request.headers().get("X-Forwarded-Uri") {
+        if let Ok(header_value) = auth_header.to_str() {
+            if header_value.is_empty() {
+                return None;
+            }
+            let params =
+                Query::<HashMap<String, String>>::from_query(request.query_string()).unwrap();
+            let access_token = params.get("access_token");
+            return access_token.map(|s| s.to_owned());
+        }
+    }
+    return None;
+}
+
 /// get token from the http standard Authorization by default
 /// if failed, get the token from http query parameter 'access_token'
 pub fn get_auth_token(req: &HttpRequest) -> String {
     let mut token = get_auth_header(req);
     if token.is_none() {
         token = get_params_access_token(req);
+    }
+    return token.unwrap_or_default();
+}
+
+pub fn get_auth_token_from_traefik(req: &HttpRequest) -> String {
+    let mut token = get_auth_header(req);
+    if token.is_none() {
+        token = get_forward_params_access_token(req);
     }
     return token.unwrap_or_default();
 }
