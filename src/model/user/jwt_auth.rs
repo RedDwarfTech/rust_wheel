@@ -6,6 +6,7 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
+use log::warn;
 use core::fmt;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
@@ -57,17 +58,25 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
 }
 
 fn get_forward_params_access_token(request: &HttpRequest) -> Option<String> {
+    warn!("start...");
     if let Some(auth_header) = request.headers().get("X-Forwarded-Uri") {
+        warn!("some header");
         if let Ok(header_value) = auth_header.to_str() {
             if header_value.is_empty() {
+                warn!("header is empty");
                 return None;
             }
+            warn!("header:{}",header_value);
             let params =
                 Query::<HashMap<String, String>>::from_query(request.query_string()).unwrap();
             let access_token = params.get("access_token");
+            if access_token.is_some() {
+                warn!("access: {}", access_token.unwrap())
+            }
             return access_token.map(|s| s.to_owned());
         }
     }
+    warn!("No X-Forwarded-Uri header");
     return None;
 }
 
@@ -81,6 +90,8 @@ pub fn get_auth_token(req: &HttpRequest) -> String {
     return token.unwrap_or_default();
 }
 
+// https://community.traefik.io/t/is-it-possible-to-forward-the-query-parameters-when-authforward/19926/1
+// https://stackoverflow.com/questions/77154811/how-to-forward-the-url-query-parameter-access-token-when-using-auth-forward-in-t
 pub fn get_auth_token_from_traefik(req: &HttpRequest) -> String {
     let mut token = get_auth_header(req);
     if token.is_none() {
