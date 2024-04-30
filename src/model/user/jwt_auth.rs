@@ -6,11 +6,10 @@ use actix_web::error::ErrorUnauthorized;
 use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
-use log::warn;
-use reqwest::Url;
 use core::fmt;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
+use log::error;
 use reqwest::header::{HeaderValue, ToStrError};
 use serde::Serialize;
 use serde_json::from_str;
@@ -59,23 +58,32 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
 }
 
 fn get_forward_params_access_token(request: &HttpRequest) -> Option<String> {
-    warn!("start...");
-    if let Some(auth_header) = request.headers().get("X-Forwarded-Uri") {
-        warn!("some header");
-        if let Ok(header_value) = auth_header.to_str() {
-            if header_value.is_empty() {
-                warn!("header is empty");
-                return None;
-            }
-            if let Ok(url) = Url::parse(header_value) {
-                let mut query_pairs = url.query_pairs();
-                if let Some(token) = query_pairs.find(|(key, _)| key == "access_token") {
-                    return Some(token.1.to_string());
-                }
+    let x_header = request.headers().get("X-Forwarded-Uri");
+    if x_header.is_none() {
+        return None;
+    }
+    let x_header_str = x_header.unwrap().to_str();
+    if let Err(e) = x_header_str {
+        error!("get header str failed: {}", e);
+        return None;
+    }
+    if x_header_str.as_ref().unwrap().is_empty() {
+        return None;
+    }
+    let key_value_pairs: Vec<&str> = x_header_str.unwrap().split('?').collect();
+    let pairs = key_value_pairs.get(1);
+    if pairs.is_none() {
+        return None;
+    }
+    let query_pairs: Vec<&str> = pairs.unwrap().split('&').collect();
+    for pair in query_pairs {
+        if pair.contains("access_token=") {
+            let access_token: Vec<&str> = pair.split('=').collect();
+            if let Some(token) = access_token.get(1) {
+                return Some(token.to_string());
             }
         }
     }
-    warn!("No X-Forwarded-Uri header");
     return None;
 }
 
