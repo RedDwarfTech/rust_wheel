@@ -7,6 +7,7 @@ use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
 use log::warn;
+use reqwest::Url;
 use core::fmt;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
@@ -66,14 +67,12 @@ fn get_forward_params_access_token(request: &HttpRequest) -> Option<String> {
                 warn!("header is empty");
                 return None;
             }
-            warn!("header:{}",header_value);
-            let params =
-                Query::<HashMap<String, String>>::from_query(request.query_string()).unwrap();
-            let access_token = params.get("access_token");
-            if access_token.is_some() {
-                warn!("access: {}", access_token.unwrap())
+            if let Ok(url) = Url::parse(header_value) {
+                let mut query_pairs = url.query_pairs();
+                if let Some(token) = query_pairs.find(|(key, _)| key == "access_token") {
+                    return Some(token.1.to_string());
+                }
             }
-            return access_token.map(|s| s.to_owned());
         }
     }
     warn!("No X-Forwarded-Uri header");
