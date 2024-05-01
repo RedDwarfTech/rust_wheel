@@ -1,15 +1,19 @@
+use crate::model::jwt::claims::Claims;
 use super::login_user_info::LoginUserInfo;
+use super::rd_user_info::RdUserInfo;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::web::Query;
 use actix_web::{dev::Payload, Error as ActixWebError};
 use actix_web::{FromRequest, HttpRequest};
-use uuid::Uuid;
 use core::fmt;
-use std::collections::HashMap;
+use std::env;
+use jsonwebtoken::{encode, EncodingKey, Header};
 use reqwest::header::{HeaderValue, ToStrError};
 use serde::Serialize;
 use serde_json::from_str;
+use std::collections::HashMap;
 use std::future::{ready, Ready};
+use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
 struct ErrorResponse {
@@ -40,15 +44,14 @@ fn get_auth_header(req: &HttpRequest) -> Option<String> {
     return None;
 }
 
-fn get_params_access_token(request: &HttpRequest) -> Option<String>{
+fn get_params_access_token(request: &HttpRequest) -> Option<String> {
     let q_str = request.query_string();
     if q_str.is_empty() {
         return None;
     }
-    let params = Query::<HashMap<String, String>>::from_query(request.query_string())
-    .unwrap();
+    let params = Query::<HashMap<String, String>>::from_query(request.query_string()).unwrap();
     let access_token = params.get("access_token");
-    return access_token.map(|s|s.to_owned());
+    return access_token.map(|s| s.to_owned());
 }
 
 /// get token from the http standard Authorization by default
@@ -59,6 +62,21 @@ fn get_auth_token(req: &HttpRequest) -> String {
         token = get_params_access_token(req);
     }
     return token.unwrap_or_default();
+}
+
+pub fn create_access_token(user_info: &RdUserInfo) -> String {
+    let expiration = chrono::Utc::now() + chrono::Duration::hours(12);
+    let rd_claim = Claims {
+        user_id: user_info.id,
+        device_id: user_info.device_id.to_string(),
+        app_id: user_info.app_id.to_string(),
+        exp: expiration.timestamp_millis(),
+        pin: 0,
+    };
+    let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let key = &EncodingKey::from_secret(jwt_secret.as_ref());
+    let token = encode(&Header::default(), &rd_claim, key);
+    return token.unwrap();
 }
 
 impl FromRequest for LoginUserInfo {
@@ -80,7 +98,7 @@ impl FromRequest for LoginUserInfo {
             let vip_expire_time = payload_claims.get("et");
             let x_request_id_value = if x_request_id.is_some() {
                 get_header_value(x_request_id.unwrap()).unwrap().to_string()
-            } else{
+            } else {
                 let uuid = Uuid::new_v4();
                 uuid.to_string()
             };

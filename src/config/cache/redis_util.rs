@@ -31,7 +31,30 @@ pub fn set_value(key: &str, value: &str, ttl_seconds: usize) -> Result<String, M
     return set_result;
 }
 
-pub fn set_str(con: &mut Connection, key: &str, value: &str, ttl_seconds: usize) {
+pub fn set_str_with_conn(con: &mut Connection, key: &str, value: &str, ttl_seconds: usize) {
+    let set_result: Result<i32, MobcError> = con.set(key, value).map_err(RedisCMDError);
+    match set_result {
+        Ok(_) => {
+            if ttl_seconds > 0 {
+                let expire_result = con
+                    .expire::<&str, usize>(key, ttl_seconds)
+                    .map_err(RedisCMDError);
+                match expire_result {
+                    Ok(_) => {}
+                    Err(_) => {
+                        error!("expire redis {} value error", key);
+                    }
+                }
+            }
+        }
+        Err(_) => {
+            error!("set redis {} value error", key);
+        }
+    }
+}
+
+pub fn set_str(key: &str, value: &str, ttl_seconds: usize) {
+    let mut con = get_con();
     let set_result: Result<i32, MobcError> = con.set(key, value).map_err(RedisCMDError);
     match set_result {
         Ok(_) => {
@@ -76,9 +99,20 @@ pub fn del_redis_key(key: &str) -> Result<(), Error> {
     FromRedisValue::from_redis_value(&del_result).map_err(|e| RedisTypeError(e).into())
 }
 
-pub fn sync_get_str(key: &str) -> redis::RedisResult<Option<String>> {
+pub fn incre_redis_key(key: &str, incre_value: i32) -> Result<(), Error> {
+    let mut redis_conn_unwrap = get_con();
+    let incr_result = redis_conn_unwrap.incr(key,incre_value).map_err(RedisCMDError)?;
+    FromRedisValue::from_redis_value(&incr_result).map_err(|e| RedisTypeError(e).into())
+}
+
+pub fn sync_get_str(key: &str) -> Option<String> {
     let mut connection = get_con();
-    return connection.get(key);
+    let redis_result = connection.get(key);
+    if let Err(e) = redis_result {
+        error!("get redis key failed,{}", e);
+        return None;
+    }
+    return redis_result.unwrap();
 }
 
 pub fn get_list_size(key: &str) -> Result<usize, Error> {

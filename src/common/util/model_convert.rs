@@ -10,7 +10,7 @@ pub fn map_pagination_res<U>(result: QueryResult<(Vec<U>, i64, i64)>, page_num: 
     };
     let resp = PaginationResponse{
         pagination: page_result,
-        list: result.unwrap().0
+        data: result.unwrap().0
     };
     return resp;
 }
@@ -23,7 +23,7 @@ pub fn map_pagination_from_list<U>(list: Vec<U>, page_num: i64,page_size: i64, t
     };
     let resp = PaginationResponse{
         pagination: page_result,
-        list
+        data: list
     };
     return resp;
 }
