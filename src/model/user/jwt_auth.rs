@@ -57,6 +57,23 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
     return access_token.map(|s| s.to_owned());
 }
 
+fn get_forward_url_path(request: &HttpRequest) -> Option<&str>{
+    let x_header = request.headers().get("X-Forwarded-Uri");
+    if x_header.is_none() {
+        return None;
+    }
+    let x_header_str = x_header.unwrap().to_str();
+    if let Err(e) = x_header_str {
+        error!("url get header str failed: {}", e);
+        return None;
+    }
+    if x_header_str.as_ref().unwrap().is_empty() {
+        return None;
+    }
+    let key_value_pairs: Vec<&str> = x_header_str.unwrap().split('?').collect();
+    return key_value_pairs.get(0).copied();
+}
+
 fn get_forward_params_access_token(request: &HttpRequest) -> Option<String> {
     let x_header = request.headers().get("X-Forwarded-Uri");
     if x_header.is_none() {
