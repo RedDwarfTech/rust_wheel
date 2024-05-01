@@ -57,7 +57,7 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
     return access_token.map(|s| s.to_owned());
 }
 
-fn get_forward_url_path(request: &HttpRequest) -> Option<&str>{
+pub fn get_forward_url_path(request: &HttpRequest) -> Option<&str>{
     let x_header = request.headers().get("X-Forwarded-Uri");
     if x_header.is_none() {
         return None;
