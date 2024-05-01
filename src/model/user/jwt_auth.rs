@@ -147,7 +147,10 @@ pub fn verify_jwt_token(token: &str) -> JwtTokenError {
         }
         Err(err) => match *err.kind() {
             ErrorKind::InvalidToken => JwtTokenError::Invalid,
-            _ => JwtTokenError::OtherError,
+            _ => { 
+                error!("token verify result: {}, token: {}", err, token);
+                return JwtTokenError::OtherError; 
+            },
         },
     }
 }
