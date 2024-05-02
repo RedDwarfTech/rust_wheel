@@ -4,7 +4,8 @@ pub enum PayPeroidType {
     OneMonth = 2,
     ThreeMonth = 3,
     SixMonth = 4,
-    OneYear = 5
+    OneYear = 5,
+    Unknow = 6
 }
 
 impl From<PayPeroidType> for i32 {
@@ -15,6 +16,20 @@ impl From<PayPeroidType> for i32 {
             PayPeroidType::ThreeMonth => 3,
             PayPeroidType::SixMonth => 4,
             PayPeroidType::OneYear => 5,
+            PayPeroidType::Unknow => 6,
+        }
+    }
+}
+
+impl From<i32> for PayPeroidType {
+    fn from(online_status: i32) -> Self {
+        match online_status {
+            1 => PayPeroidType::DAY,
+            2 => PayPeroidType::OneMonth,
+            3 => PayPeroidType::ThreeMonth,
+            4 => PayPeroidType::SixMonth,
+            5 => PayPeroidType::OneYear,
+            _ => PayPeroidType::Unknow
         }
     }
 }
