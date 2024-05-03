@@ -13,16 +13,16 @@ pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) ->
         error!("content is null, params: {:?}", params);
         return false;
     }
+    // https://docs.rs/ring/latest/ring/signature/index.html
     let verify_public_key = signature::UnparsedPublicKey::new(
         &signature::RSA_PKCS1_2048_8192_SHA256,
         public_key.as_bytes(),
     );
-    let verify_result =
-        verify_public_key.verify(content.unwrap().as_bytes(), &sign.unwrap().as_bytes());
+    let verify_result = verify_public_key.verify(content.clone().unwrap().as_bytes(), &sign.unwrap().as_bytes());
     match verify_result {
         Ok(_data) => return true,
         Err(err) => {
-            error!("verify failed, params: {:?}, err:{}", params, err);
+            error!("verify failed, params: {:?}, err:{}, content: {}", params, err, content.unwrap_or_default());
             return false
         },
     }
