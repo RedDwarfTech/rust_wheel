@@ -86,23 +86,31 @@ impl Signer for SignSHA256WithRSA {
     fn verify(&self, source: &str, signature: &str) -> Result<bool> {
         let mut hashed = Sha256::new();
         hashed.update(source.as_bytes());
-        if let Ok(decode_signature) = base64::decode(signature) {
-            match self.public_key.as_ref().unwrap().verify(
-                PaddingScheme::new_pkcs1v15_sign(Some(Hash::SHA2_256)),
-                &hashed.finalize(),
-                &decode_signature,
-            ) {
-                Ok(()) => Ok(true),
-                Err(err) => {
-                    error!(
-                        "verify not pass, error: {}, signature: {}, source: {}",
-                        err, signature, source
-                    );
-                    Ok(false)
+        let decode_result = base64::decode(signature);
+        match decode_result {
+            Ok(decode_signature) => {
+                match self.public_key.as_ref().unwrap().verify(
+                    PaddingScheme::new_pkcs1v15_sign(Some(Hash::SHA2_256)),
+                    &hashed.finalize(),
+                    &decode_signature,
+                ) {
+                    Ok(()) => Ok(true),
+                    Err(err) => {
+                        error!(
+                            "verify not pass, error: {}, signature: {}, source: {}",
+                            err, signature, source
+                        );
+                        Ok(false)
+                    }
                 }
             }
-        } else {
-            Err(Error::new(ErrorKind::Other, "base64 decode signature"))
+            Err(e) => {
+                error!(
+                    "base64 decode error, error: {}, signature: {}, source: {}",
+                    e, signature, source
+                );
+                return Ok(false);
+            }
         }
     }
 
