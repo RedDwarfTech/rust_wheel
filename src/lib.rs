@@ -8,3 +8,5 @@ pub mod config;
 pub mod texhub;
 #[cfg(feature = "cruise")]
 pub mod cruise;
+#[cfg(feature = "alipay")]
+pub mod alipay;
