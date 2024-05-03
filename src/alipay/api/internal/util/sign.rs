@@ -86,7 +86,7 @@ impl Signer for SignSHA256WithRSA {
     fn verify(&self, source: &str, signature: &str) -> Result<bool> {
         let mut hashed = Sha256::new();
         hashed.update(source.as_bytes());
-        let decode_result = base64::decode(signature);
+        let decode_result = base64::decode(signature.as_bytes());
         match decode_result {
             Ok(decode_signature) => {
                 match self.public_key.as_ref().unwrap().verify(
