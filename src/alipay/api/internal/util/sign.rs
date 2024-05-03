@@ -5,6 +5,7 @@ use gostd::{
     bytes,
     io::{ByteWriter, StringWriter},
 };
+use log::error;
 use rsa::{
     pkcs1::DecodeRsaPrivateKey, pkcs8::DecodePublicKey, Hash, PaddingScheme, PublicKey,
     RsaPrivateKey, RsaPublicKey,
@@ -92,7 +93,13 @@ impl Signer for SignSHA256WithRSA {
                 &decode_signature,
             ) {
                 Ok(()) => Ok(true),
-                Err(err) => Ok(false),
+                Err(err) => {
+                    error!(
+                        "verify not pass, error: {}, signature: {}, source: {}",
+                        err, signature, source
+                    );
+                    Ok(false)
+                }
             }
         } else {
             Err(Error::new(ErrorKind::Other, "base64 decode signature"))
