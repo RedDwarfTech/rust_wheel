@@ -2,30 +2,25 @@ use ring::signature;
 use std::collections::HashMap;
 use log::error;
 
-pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) -> bool {
+use crate::common::error::alipay::signature_error::SignatureError;
+
+pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) ->  Result<(), SignatureError> {
     let sign = params.get("sign");
     if sign.is_none() {
         error!("sign is null, params: {:?}", params);
-        return false;
+        return Err(SignatureError::SignFieldNull);
     }
     let content = get_sign_check_content_v1(&mut params.clone());
     if content.is_none() {
         error!("content is null, params: {:?}", params);
-        return false;
+        return Err(SignatureError::SignContentNull);
     }
     // https://docs.rs/ring/latest/ring/signature/index.html
     let verify_public_key = signature::UnparsedPublicKey::new(
         &signature::RSA_PKCS1_2048_8192_SHA256,
         public_key.as_bytes(),
     );
-    let verify_result = verify_public_key.verify(content.clone().unwrap().as_bytes(), &sign.unwrap().as_bytes());
-    match verify_result {
-        Ok(_data) => return true,
-        Err(err) => {
-            error!("verify failed, params: {:?}, err:{}, content: {}", params, err, content.unwrap_or_default());
-            return false
-        },
-    }
+    verify_public_key.verify(content.clone().unwrap().as_bytes(), &sign.unwrap().as_bytes()).map_err(|_| SignatureError::BadSignature) 
 }
 
 pub fn get_sign_check_content_v1(params: &mut HashMap<String, String>) -> Option<String> {
