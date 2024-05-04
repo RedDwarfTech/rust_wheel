@@ -86,7 +86,9 @@ impl Signer for SignSHA256WithRSA {
     fn verify(&self, source: &str, signature: &str) -> Result<bool> {
         let mut hashed = Sha256::new();
         hashed.update(source.as_bytes());
-        let decode_result = base64::decode(signature.as_bytes());
+        let dec_sign = urlencoding::decode(signature);
+        // https://stackoverflow.com/questions/78425827/how-to-make-rust-decode-the-base64-string-keep-the-same-with-java
+        let decode_result = base64::decode(&dec_sign.unwrap_or_default().into_owned());
         match decode_result {
             Ok(decode_signature) => {
                 match self.public_key.as_ref().unwrap().verify(
