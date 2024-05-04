@@ -1,11 +1,12 @@
 use ring::signature;
 use std::collections::HashMap;
-use log::error;
+use log::{error, warn};
 
 use crate::common::error::alipay::signature_error::SignatureError;
 
 pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) ->  Result<(), SignatureError> {
     let sign = params.get("sign");
+    warn!("origin sign: {:?}", &sign.unwrap());
     if sign.is_none() {
         error!("sign is null, params: {:?}", params);
         return Err(SignatureError::SignFieldNull);
