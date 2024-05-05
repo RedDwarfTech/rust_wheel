@@ -83,12 +83,18 @@ impl Signer for SignSHA256WithRSA {
         }
     }
 
+    ///
+    /// 对于支付宝支付的验签，source是已经decode并排好序的字符串
+    /// signature是经过解码的base64字符串
+    /// 对于source需要注意json的转义字符以及时间解析时+号的处理
+    /// Java中+默认替换为空格，详细可以参考：https://juejin.cn/post/6844904034453864462
+    /// 也可以检索关键字：http请求中加号被替换为空格？源码背后的秘密
+    /// 
     fn verify(&self, source: &str, signature: &str) -> Result<bool> {
         let mut hashed = Sha256::new();
         hashed.update(source.as_bytes());
-        let dec_sign = urlencoding::decode(signature);
         // https://stackoverflow.com/questions/78425827/how-to-make-rust-decode-the-base64-string-keep-the-same-with-java
-        let decode_result = base64::decode(&dec_sign.clone().unwrap_or_default().into_owned());
+        let decode_result = base64::decode(signature);
         match decode_result {
             Ok(decode_signature) => {
                 match self.public_key.as_ref().unwrap().verify(
@@ -100,7 +106,7 @@ impl Signer for SignSHA256WithRSA {
                     Err(err) => {
                         error!(
                             "verify not pass, error: {}, signature: {}, source: {}",
-                            err, dec_sign.unwrap_or_default().into_owned(), 
+                            err, signature, 
                             source
                         );
                         Ok(false)
