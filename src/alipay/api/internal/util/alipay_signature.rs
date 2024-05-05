@@ -17,19 +17,30 @@ pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) ->
         return Err(SignatureError::SignContentNull);
     }
     let tmp_content = content.unwrap_or_default();
-    let origin_content_str = urlencoding::decode(&tmp_content);
-    let origin_content = origin_content_str.unwrap_or_default().into_owned();
+    let decoded_pairs = form_urlencoded::parse(&tmp_content.as_bytes());
+    let mut decoded_str = String::new();
+    for (key, value) in decoded_pairs {
+        decoded_str.push_str(&format!("{}={}&", key, value));
+    }
+    // 去除最后一个 "&"
+    decoded_str.pop();
 
     let tmp_sign = sign.unwrap();
-    let origin_sign_str = urlencoding::decode(&tmp_sign);
-    let origin_sign = origin_sign_str.unwrap_or_default().into_owned();
-    let base64_decode = base64::decode(&origin_sign).unwrap_or_default();
+    let decode_sign_pairs = form_urlencoded::parse(&tmp_sign.as_bytes());
+    let mut decode_sign_str = String::new();
+    for (key, value) in decode_sign_pairs {
+        decode_sign_str.push_str(&format!("{}={}&", key, value));
+    }
+    // 去除最后一个 "&"
+    decode_sign_str.pop();
+    let base64_decode = base64::decode(&decode_sign_str).unwrap_or_default();
     // https://docs.rs/ring/latest/ring/signature/index.html
     let verify_public_key = signature::UnparsedPublicKey::new(
         &signature::RSA_PKCS1_2048_8192_SHA256,
         public_key.as_bytes(),
     );
-    verify_public_key.verify(origin_content.as_bytes(), &base64_decode).map_err(|_| SignatureError::BadSignature) 
+    warn!("legacy params, src: {}, sign: {}", decoded_str, &decode_sign_str);
+    verify_public_key.verify(decoded_str.as_bytes(), &base64_decode).map_err(|_| SignatureError::BadSignature) 
 }
 
 pub fn get_sign_check_content_v1(params: &mut HashMap<String, String>) -> Option<String> {
