@@ -1,12 +1,14 @@
+use log::error;
 use ring::signature;
 use std::collections::HashMap;
-use log::{error, warn};
 
 use crate::common::error::alipay::signature_error::SignatureError;
 
-pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) ->  Result<(), SignatureError> {
+pub fn rsa_check_v1(
+    params: &mut HashMap<String, String>,
+    public_key: String,
+) -> Result<(), SignatureError> {
     let sign = params.get("sign");
-    warn!("origin sign: {:?}", &sign.unwrap());
     if sign.is_none() {
         error!("sign is null, params: {:?}", params);
         return Err(SignatureError::SignFieldNull);
@@ -39,8 +41,9 @@ pub fn rsa_check_v1(params: &mut HashMap<String, String>, public_key: String) ->
         &signature::RSA_PKCS1_2048_8192_SHA256,
         public_key.as_bytes(),
     );
-    warn!("legacy params, src: {}, sign: {}", decoded_str, &decode_sign_str);
-    verify_public_key.verify(decoded_str.as_bytes(), &base64_decode).map_err(|_| SignatureError::BadSignature) 
+    verify_public_key
+        .verify(decoded_str.as_bytes(), &base64_decode)
+        .map_err(|_| SignatureError::BadSignature)
 }
 
 pub fn get_sign_check_content_v1(params: &mut HashMap<String, String>) -> Option<String> {
