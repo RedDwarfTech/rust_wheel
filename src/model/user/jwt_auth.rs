@@ -1,5 +1,3 @@
-use crate::common::error::jwt_token_error::JwtTokenError;
-
 use super::login_user_info::LoginUserInfo;
 use super::web_jwt_payload::WebJwtPayload;
 use actix_web::error::ErrorUnauthorized;
