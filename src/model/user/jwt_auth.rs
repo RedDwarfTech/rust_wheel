@@ -131,7 +131,7 @@ pub fn create_access_token(jwt_payload: &WebJwtPayload) -> String {
     return token.unwrap();
 }
 
-pub fn verify_jwt_token(token: &str) -> ErrorKind {
+pub fn verify_jwt_token(token: &str) -> Option<ErrorKind> {
     let secret_key = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
     match decode::<serde_json::Value>(token, &decoding_key, &Default::default()) {
@@ -140,13 +140,13 @@ pub fn verify_jwt_token(token: &str) -> ErrorKind {
                 let current_time = chrono::Utc::now().timestamp();
                 let exp_time1 = exp.as_i64().unwrap();
                 if exp_time1 < current_time {
-                    return ErrorKind::ExpiredSignature;
+                    return Some(ErrorKind::ExpiredSignature);
                 }
             }
-            ErrorKind::InvalidToken
+            None
         }
         Err(err) => {
-            return err.kind().clone()
+            return Some(err.kind().clone())
         },
     }
 }
