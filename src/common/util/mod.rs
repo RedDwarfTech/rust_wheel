@@ -8,3 +8,4 @@ pub mod convert_to_tree_generic;
 pub mod response_handler;
 pub mod rd_file_util;
 pub mod net;
+pub mod str_util;
