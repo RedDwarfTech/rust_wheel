@@ -22,9 +22,10 @@ pub async fn get_user_info(input_user_id: &i64) -> Option<RdUserInfo> {
         error!("extract text failed: {}", e);
         return None;
     }
-    let resp_result = serde_json::from_str::<ApiResponse<RdUserInfo>>(&text_response.unwrap());
+    let resp_str = text_response.unwrap_or_default();
+    let resp_result = serde_json::from_str::<ApiResponse<RdUserInfo>>(&resp_str);
     if let Err(pe) = resp_result {
-        error!("parse failed: {}", pe);
+        error!("parse failed: {}, response: {}", pe, &resp_str);
         return None;
     }
     Some(resp_result.unwrap().result)
