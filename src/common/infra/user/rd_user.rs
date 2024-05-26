@@ -1,13 +1,17 @@
+use std::env;
+
+use crate::model::{response::api_response::ApiResponse, user::rd_user_info::RdUserInfo};
 use log::error;
 use reqwest::Client;
-use crate::model::{user::rd_user_info::RdUserInfo, response::api_response::ApiResponse};
 
 pub async fn get_user_info(input_user_id: &i64) -> Option<RdUserInfo> {
     let client = Client::new();
-    let url = "http://dolphin-post-service.reddwarf-pro.svc.cluster.local:11014/post/user/";
-    let resp = client.get(format!("{}{}", url, input_user_id))
-    .body("{}")
-    .send()
+    let infra_url = env::var("INFRA_URL").expect("INFRA_URL must be set");
+    let url = format!("{}{}", infra_url, "/infra-inner/user/detail");
+    let resp = client
+        .get(format!("{}{}", url, input_user_id))
+        .body("{}")
+        .send()
         .await;
     if let Err(e) = resp {
         error!("get user failed: {}", e);
