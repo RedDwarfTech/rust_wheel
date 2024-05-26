@@ -9,7 +9,7 @@ pub async fn get_user_info(input_user_id: &i64) -> Option<RdUserInfo> {
     let infra_url = env::var("INFRA_URL").expect("INFRA_URL must be set");
     let url = format!("{}{}", infra_url, "/infra-inner/user/detail");
     let resp = client
-        .get(format!("{}{}", url, input_user_id))
+        .get(format!("{}?id={}", url, input_user_id))
         .body("{}")
         .send()
         .await;
