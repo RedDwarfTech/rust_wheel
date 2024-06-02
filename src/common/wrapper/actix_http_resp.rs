@@ -1,4 +1,7 @@
-use crate::model::{error::{custom_error::CustomError, infra_error::InfraError}, response::api_response::ApiResponse};
+use crate::model::{
+    error::{custom_error::CustomError, infra_error::InfraError},
+    response::api_response::ApiResponse,
+};
 use actix_web::HttpResponse;
 use serde::Serialize;
 
@@ -40,10 +43,7 @@ where
     HttpResponse::Ok().json(res)
 }
 
-pub fn box_err_actix_rest_response<T>(err: InfraError) -> HttpResponse
-where
-    T: Serialize + Default,
-{
+pub fn box_err_actix_rest_response(err: InfraError) -> HttpResponse {
     let res = ApiResponse {
         result: err.error_code_en(),
         statusCode: "200".to_string(),
