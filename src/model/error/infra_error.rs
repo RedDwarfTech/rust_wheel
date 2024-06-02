@@ -6,9 +6,9 @@ pub enum InfraError {
     NewOldPwdDuplicate,
 }
 impl InfraError {
-    pub fn error_code(&self) -> u32 {
+    pub fn error_code(&self) -> &str {
         match self {
-            InfraError::NewOldPwdDuplicate => 0030010008,
+            InfraError::NewOldPwdDuplicate => "0030010008",
         }
     }
 
