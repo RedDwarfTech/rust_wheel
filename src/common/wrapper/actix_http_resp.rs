@@ -1,5 +1,5 @@
 use crate::model::{
-    error::{custom_error::CustomError, infra_error::InfraError},
+    error::{custom_error::CustomError, error_response::ErrorResponse},
     response::api_response::ApiResponse,
 };
 use actix_web::HttpResponse;
@@ -43,7 +43,10 @@ where
     HttpResponse::Ok().json(res)
 }
 
-pub fn box_err_actix_rest_response(err: InfraError) -> HttpResponse {
+pub fn box_err_actix_rest_response<E>(err: E) -> HttpResponse
+where
+    E: ErrorResponse,
+{
     let res = ApiResponse {
         result: err.error_code_en(),
         statusCode: "200".to_string(),
