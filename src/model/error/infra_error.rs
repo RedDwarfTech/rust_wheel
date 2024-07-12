@@ -8,6 +8,8 @@ pub enum InfraError {
     NewOldPwdDuplicate,
     #[error("密码不够安全,密码必须包含大写、小写、数字和特殊字符，且长度是8-32位")]
     PwdNitMatchComplexGuide,
+    #[error("数据未找到")]
+    DataNotFound,
 }
 
 impl ErrorResponse for InfraError {
@@ -15,6 +17,7 @@ impl ErrorResponse for InfraError {
         match self {
             InfraError::NewOldPwdDuplicate => "0030010008",
             InfraError::PwdNitMatchComplexGuide => "0030010006",
+            InfraError::DataNotFound => "0030010009",
         }
     }
 
@@ -23,6 +26,9 @@ impl ErrorResponse for InfraError {
             InfraError::NewOldPwdDuplicate => "新旧密码不能相同",
             InfraError::PwdNitMatchComplexGuide => {
                 "密码不够安全,密码必须包含大写、小写、数字和特殊字符，且长度是8-32"
+            },
+            InfraError::DataNotFound => {
+                "数据未找到"
             }
         }
     }
@@ -31,6 +37,7 @@ impl ErrorResponse for InfraError {
         match self {
             InfraError::NewOldPwdDuplicate => "NEW_OLD_PWD_DUPLICATED",
             InfraError::PwdNitMatchComplexGuide => "PWD_NOT_MATCH_COMPLAEX_GUIDE",
+            InfraError::DataNotFound => "DATA_NOT_FOUND",
         }
     }
 }
