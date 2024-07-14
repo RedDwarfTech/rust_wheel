@@ -10,6 +10,8 @@ pub enum InfraError {
     PwdNitMatchComplexGuide,
     #[error("数据未找到")]
     DataNotFound,
+    #[error("短信验证码不匹配")]
+    SmsVerifyCodeNotMatch,
 }
 
 impl ErrorResponse for InfraError {
@@ -18,6 +20,7 @@ impl ErrorResponse for InfraError {
             InfraError::NewOldPwdDuplicate => "0030010008",
             InfraError::PwdNitMatchComplexGuide => "0030010006",
             InfraError::DataNotFound => "0030010009",
+            InfraError::SmsVerifyCodeNotMatch => "0030010010",
         }
     }
 
@@ -29,6 +32,9 @@ impl ErrorResponse for InfraError {
             },
             InfraError::DataNotFound => {
                 "数据未找到"
+            },
+            InfraError::SmsVerifyCodeNotMatch => {
+                "短信验证码不匹配"
             }
         }
     }
@@ -38,6 +44,7 @@ impl ErrorResponse for InfraError {
             InfraError::NewOldPwdDuplicate => "NEW_OLD_PWD_DUPLICATED",
             InfraError::PwdNitMatchComplexGuide => "PWD_NOT_MATCH_COMPLAEX_GUIDE",
             InfraError::DataNotFound => "DATA_NOT_FOUND",
+            InfraError::SmsVerifyCodeNotMatch => "SMS_VERIFY_CODE_NOT_MATCH",
         }
     }
 }
