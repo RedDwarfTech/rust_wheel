@@ -12,6 +12,8 @@ pub enum InfraError {
     DataNotFound,
     #[error("短信验证码不匹配")]
     SmsVerifyCodeNotMatch,
+    #[error("登录信息不匹配")]
+    LoginInfoNotMatch,
 }
 
 impl ErrorResponse for InfraError {
@@ -21,6 +23,7 @@ impl ErrorResponse for InfraError {
             InfraError::PwdNitMatchComplexGuide => "0030010006",
             InfraError::DataNotFound => "0030010009",
             InfraError::SmsVerifyCodeNotMatch => "0030010010",
+            InfraError::LoginInfoNotMatch => "0030010001",
         }
     }
 
@@ -35,7 +38,10 @@ impl ErrorResponse for InfraError {
             },
             InfraError::SmsVerifyCodeNotMatch => {
                 "短信验证码不匹配"
-            }
+            },
+            InfraError::LoginInfoNotMatch => {
+                "登录信息不匹配"
+            },
         }
     }
 
@@ -45,6 +51,7 @@ impl ErrorResponse for InfraError {
             InfraError::PwdNitMatchComplexGuide => "PWD_NOT_MATCH_COMPLAEX_GUIDE",
             InfraError::DataNotFound => "DATA_NOT_FOUND",
             InfraError::SmsVerifyCodeNotMatch => "SMS_VERIFY_CODE_NOT_MATCH",
+            InfraError::LoginInfoNotMatch => "LOGIN_INFO_NOT_MATCH",
         }
     }
 }
