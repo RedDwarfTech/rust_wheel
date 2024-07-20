@@ -14,6 +14,8 @@ pub enum InfraError {
     SmsVerifyCodeNotMatch,
     #[error("登录信息不匹配")]
     LoginInfoNotMatch,
+    #[error("验证码已过期")]
+    VerifyCodeExpired,
 }
 
 impl ErrorResponse for InfraError {
@@ -24,6 +26,7 @@ impl ErrorResponse for InfraError {
             InfraError::DataNotFound => "0030010009",
             InfraError::SmsVerifyCodeNotMatch => "0030010010",
             InfraError::LoginInfoNotMatch => "0030010001",
+            InfraError::VerifyCodeExpired => "0030010011",
         }
     }
 
@@ -42,6 +45,9 @@ impl ErrorResponse for InfraError {
             InfraError::LoginInfoNotMatch => {
                 "登录信息不匹配"
             },
+            InfraError::VerifyCodeExpired => {
+                "验证码已过期"
+            },
         }
     }
 
@@ -52,6 +58,7 @@ impl ErrorResponse for InfraError {
             InfraError::DataNotFound => "DATA_NOT_FOUND",
             InfraError::SmsVerifyCodeNotMatch => "SMS_VERIFY_CODE_NOT_MATCH",
             InfraError::LoginInfoNotMatch => "LOGIN_INFO_NOT_MATCH",
+            InfraError::VerifyCodeExpired => "VERIFY_CODE_EXPIRED",
         }
     }
 }
