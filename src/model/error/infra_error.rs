@@ -16,6 +16,8 @@ pub enum InfraError {
     LoginInfoNotMatch,
     #[error("验证码已过期")]
     VerifyCodeExpired,
+    #[error("无访问资源权限")]
+    AccessResourceDenied,
 }
 
 impl ErrorResponse for InfraError {
@@ -27,6 +29,7 @@ impl ErrorResponse for InfraError {
             InfraError::SmsVerifyCodeNotMatch => "0030010010",
             InfraError::LoginInfoNotMatch => "0030010001",
             InfraError::VerifyCodeExpired => "0030010011",
+            InfraError::AccessResourceDenied => "0030010012",
         }
     }
 
@@ -48,6 +51,9 @@ impl ErrorResponse for InfraError {
             InfraError::VerifyCodeExpired => {
                 "验证码已过期"
             },
+            InfraError::AccessResourceDenied => {
+                "无访问资源权限"
+            },
         }
     }
 
@@ -59,6 +65,7 @@ impl ErrorResponse for InfraError {
             InfraError::SmsVerifyCodeNotMatch => "SMS_VERIFY_CODE_NOT_MATCH",
             InfraError::LoginInfoNotMatch => "LOGIN_INFO_NOT_MATCH",
             InfraError::VerifyCodeExpired => "VERIFY_CODE_EXPIRED",
+            InfraError::AccessResourceDenied => "ACCESS_RESOURCE_DENIED",
         }
     }
 }
