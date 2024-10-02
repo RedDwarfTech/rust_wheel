@@ -33,7 +33,7 @@ fn get_header_value(header_value: &HeaderValue) -> Result<&str, ToStrError> {
     return value_str;
 }
 
-fn get_auth_header(req: &HttpRequest) -> Option<String> {
+pub fn get_auth_header(req: &HttpRequest) -> Option<String> {
     if let Some(auth_header) = req.headers().get("Authorization") {
         if let Ok(header_value) = auth_header.to_str() {
             if header_value.starts_with("Bearer ") {

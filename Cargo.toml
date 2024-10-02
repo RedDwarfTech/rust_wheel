@@ -1,6 +1,6 @@
 [package]
 name = "rust_wheel"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2018"
 license = "MIT"
 authors = ["Jiangxiaoqiang <jiangtingqiang@gmail.com>"]
@@ -34,7 +34,7 @@ sha2 = "0.10.2"
 rsa = "0.6.1"
 data-encoding = "2.3.2"
 reqwest = { version = "0.11", features = ["json"] }
-redis = "0.23.3"
+redis = "0.24.0"
 mobc = "0.8.1"
 jsonwebtoken = "8.3.0"
 base64 = "0.4.0"
