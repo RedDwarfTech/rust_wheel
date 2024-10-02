@@ -77,3 +77,32 @@ pub fn create_directory_if_not_exists(path: &str) -> io::Result<()> {
     }
     Ok(())
 }
+
+pub fn copy_dir_recursive(src: &str, dst: &str) -> io::Result<()> {
+    if !fs::metadata(src)?.is_dir() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("{} is not a directory", src),
+        ));
+    }
+
+    if fs::metadata(dst).is_err() {
+        fs::create_dir(dst)?;
+    }
+
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let path = entry.path();
+        let file_name = entry.file_name();
+
+        if path.is_file() {
+            let dst_file = format!("{}/{}", dst, file_name.to_str().unwrap());
+            fs::copy(&path, &dst_file)?;
+        } else if path.is_dir() {
+            let dst_dir = format!("{}/{}", dst, file_name.to_str().unwrap());
+            copy_dir_recursive(&path.to_str().unwrap(), &dst_dir)?;
+        }
+    }
+
+    Ok(())
+}
