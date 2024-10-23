@@ -15,4 +15,5 @@ pub struct RdUserInfo {
     pub auto_renew_product_expire_time_ms: i64,
     #[serde(rename = "appName")]
     pub app_name: String,
+    pub salt: String,
 }
