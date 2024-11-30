@@ -18,6 +18,8 @@ pub enum InfraError {
     VerifyCodeExpired,
     #[error("无访问资源权限")]
     AccessResourceDenied,
+    #[error("签名已过期")]
+    SignExpired,
 }
 
 impl ErrorResponse for InfraError {
@@ -30,6 +32,7 @@ impl ErrorResponse for InfraError {
             InfraError::LoginInfoNotMatch => "0030010001",
             InfraError::VerifyCodeExpired => "0030010011",
             InfraError::AccessResourceDenied => "0030010012",
+            InfraError::SignExpired => "0030010013",
         }
     }
 
@@ -54,6 +57,9 @@ impl ErrorResponse for InfraError {
             InfraError::AccessResourceDenied => {
                 "无访问资源权限"
             },
+            InfraError::SignExpired => {
+                "签名已过期"
+            },
         }
     }
 
@@ -66,6 +72,7 @@ impl ErrorResponse for InfraError {
             InfraError::LoginInfoNotMatch => "LOGIN_INFO_NOT_MATCH",
             InfraError::VerifyCodeExpired => "VERIFY_CODE_EXPIRED",
             InfraError::AccessResourceDenied => "ACCESS_RESOURCE_DENIED",
+            InfraError::SignExpired => "SIGN_EXPIRED",
         }
     }
 }
