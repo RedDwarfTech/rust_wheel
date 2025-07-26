@@ -22,6 +22,8 @@ pub enum InfraError {
     SignExpired,
     #[error("签名非法")]
     SignIlleagal,
+    #[error("超出文件数量限制")]
+    FileNumLimitExceed,
 }
 
 impl ErrorResponse for InfraError {
@@ -36,6 +38,7 @@ impl ErrorResponse for InfraError {
             InfraError::AccessResourceDenied => "0030010012",
             InfraError::SignExpired => "0030010013",
             InfraError::SignIlleagal => "0030010014",
+            InfraError::FileNumLimitExceed => "001002D001",
         }
     }
 
@@ -66,6 +69,9 @@ impl ErrorResponse for InfraError {
             InfraError::SignIlleagal => {
                 "签名非法"
             },
+            InfraError::FileNumLimitExceed => {
+                "超出文件数量限制"
+            },
         }
     }
 
@@ -80,6 +86,7 @@ impl ErrorResponse for InfraError {
             InfraError::AccessResourceDenied => "ACCESS_RESOURCE_DENIED",
             InfraError::SignExpired => "SIGN_EXPIRED",
             InfraError::SignIlleagal => "SIGN_ILLEAGAL",
+            InfraError::FileNumLimitExceed => "FILE_NUM_LIMIT_EXCEED",
         }
     }
 }
