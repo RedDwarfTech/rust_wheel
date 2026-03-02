@@ -4,7 +4,8 @@ pub enum RdOrderStatus {
     PAID = 1,
     SHIPPED = 2,
     COMPLETED = 3,
-    CANCELED = 4
+    CANCELED = 4,
+    EXPIRED = 5,
 }
 
 impl From<RdOrderStatus> for i32 {
@@ -15,6 +16,7 @@ impl From<RdOrderStatus> for i32 {
             RdOrderStatus::SHIPPED => 2,
             RdOrderStatus::COMPLETED => 3,
             RdOrderStatus::CANCELED => 4,
+            RdOrderStatus::EXPIRED => 5,
         }
     }
 }
