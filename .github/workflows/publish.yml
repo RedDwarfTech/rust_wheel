@@ -21,15 +21,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y musl-tools musl-dev
       
-      # 设置 Rust
+      # 设置 Rust 工具链
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          profile: minimal
-          override: true
-          # 添加 musl 目标支持
-          target: x86_64-unknown-linux-musl
+          components: rustfmt, clippy
+          targets: x86_64-unknown-linux-musl  # 如果需要 musl
       
       # 使用缓存加速构建
       - name: Cache cargo registry
