@@ -26,7 +26,8 @@ jobs:
             if: steps.cache-publish-action.outputs.cache-hit != 'true'
             run:
               cargo install publish-action
-          
+          - name: Login to crates.io
+            run: cargo login ${{ secrets.CARGO_REGISTRY_TOKEN }}
           - name: Run publish-action
             run:
               publish-action
