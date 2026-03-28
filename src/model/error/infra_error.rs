@@ -26,6 +26,10 @@ pub enum InfraError {
     FileNumLimitExceed,
     #[error("登录错误次数过多")]
     LoginErrorTooMany,
+    #[error("用户已注册")]
+    UserAlreadyRegistered,
+    #[error("APPID不匹配")]
+    AppIdNotMatch,
 }
 
 impl ErrorResponse for InfraError {
@@ -42,6 +46,8 @@ impl ErrorResponse for InfraError {
             InfraError::SignIlleagal => "0030010014",
             InfraError::FileNumLimitExceed => "001002D001",
             InfraError::LoginErrorTooMany => "0030010002",
+            InfraError::UserAlreadyRegistered => "0030010005",
+            InfraError::AppIdNotMatch => "0030010007",
         }
     }
 
@@ -77,6 +83,12 @@ impl ErrorResponse for InfraError {
             },
             InfraError::LoginErrorTooMany => {
                 "登录错误次数过多"
+            },
+            InfraError::UserAlreadyRegistered => {
+                "用户已注册"
+            },
+            InfraError::AppIdNotMatch => {
+                "APPID不匹配"
             }
         }
     }
@@ -94,6 +106,8 @@ impl ErrorResponse for InfraError {
             InfraError::SignIlleagal => "SIGN_ILLEAGAL",
             InfraError::FileNumLimitExceed => "FILE_NUM_LIMIT_EXCEED",
             InfraError::LoginErrorTooMany => "LOGIN_FAILED_TOO_MUCH",
+            InfraError::UserAlreadyRegistered => "USER_ALREADY_REGISTERED",
+            InfraError::AppIdNotMatch => "APPID_NOT_MATCH",
         }
     }
 }
