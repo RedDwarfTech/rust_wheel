@@ -83,7 +83,7 @@ pub fn get_str_default(key: &str) -> Result<Option<String>, Error> {
     if Value::Nil == value {
         return Ok(None);
     }
-    FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
+    FromRedisValue::from_redis_value(value).map_err(|e| RedisTypeError(e.into()).into())
 }
 
 pub async fn get_str(con: &mut Connection, key: &str) -> Result<Option<String>, Error> {
@@ -91,21 +91,21 @@ pub async fn get_str(con: &mut Connection, key: &str) -> Result<Option<String>, 
     if Value::Nil == value {
         return Ok(None);
     }
-    FromRedisValue::from_redis_value(&value).map_err(|e| RedisTypeError(e).into())
+    FromRedisValue::from_redis_value(value).map_err(|e| RedisTypeError(e.into()).into())
 }
 
 pub fn del_redis_key(key: &str) -> Result<(), Error> {
     let mut redis_conn_unwrap = get_con();
-    let del_result = redis_conn_unwrap.del(key).map_err(RedisCMDError)?;
-    FromRedisValue::from_redis_value(&del_result).map_err(|e| RedisTypeError(e).into())
+    let _del_result: i64 = redis_conn_unwrap.del(key).map_err(RedisCMDError)?;
+    Ok(())
 }
 
 pub fn incre_redis_key(key: &str, incre_value: i32) -> Result<(), Error> {
     let mut redis_conn_unwrap = get_con();
-    let incr_result = redis_conn_unwrap
+    let _incr_result: i64 = redis_conn_unwrap
         .incr(key, incre_value)
         .map_err(RedisCMDError)?;
-    FromRedisValue::from_redis_value(&incr_result).map_err(|e| RedisTypeError(e).into())
+    Ok(())
 }
 
 pub fn sync_get_str(key: &str) -> Option<String> {
