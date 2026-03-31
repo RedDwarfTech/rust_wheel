@@ -1,3 +1,5 @@
+use crate::common::util::net::context_util::ContextUtil;
+
 use super::login_user_info::LoginUserInfo;
 use super::web_jwt_payload::WebJwtPayload;
 use actix_web::error::ErrorUnauthorized;
@@ -8,13 +10,10 @@ use core::fmt;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header};
 use log::error;
-use reqwest::header::{HeaderValue, ToStrError};
 use serde::Serialize;
-use serde_json::from_str;
 use std::collections::HashMap;
 use std::env;
 use std::future::{ready, Ready};
-use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
 struct ErrorResponse {
@@ -28,10 +27,7 @@ impl fmt::Display for ErrorResponse {
     }
 }
 
-fn get_header_value(header_value: &HeaderValue) -> Result<&str, ToStrError> {
-    let value_str = header_value.to_str();
-    return value_str;
-}
+
 
 pub fn get_auth_header(req: &HttpRequest) -> Option<String> {
     if let Some(auth_header) = req.headers().get("Authorization") {
@@ -55,7 +51,7 @@ fn get_params_access_token(request: &HttpRequest) -> Option<String> {
     return access_token.map(|s| s.to_owned());
 }
 
-pub fn get_forward_url_path(request: &HttpRequest) -> Option<&str>{
+pub fn get_forward_url_path(request: &HttpRequest) -> Option<&str> {
     let x_header = request.headers().get("X-Forwarded-Uri");
     if x_header.is_none() {
         return None;
@@ -143,59 +139,23 @@ pub fn verify_jwt_token(token: &str) -> Option<ErrorKind> {
             }
             None
         }
-        Err(err) => {
-            return Some(err.kind().clone())
-        },
+        Err(err) => return Some(err.kind().clone()),
     }
 }
 
 impl FromRequest for LoginUserInfo {
     type Error = ActixWebError;
     type Future = Ready<Result<Self, Self::Error>>;
-    fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let token = get_auth_token(req);
-        let x_request_id = req.headers().get("x-request-id");
-        if !token.is_empty() {
-            let parts: Vec<&str> = token.split(".").collect();
-            let payload_base64 = parts[1];
-            let payload_str = base64::decode(payload_base64).unwrap();
-            let payload_json =
-                from_str::<serde_json::Value>(&String::from_utf8(payload_str).unwrap()).unwrap();
-            let payload_claims = payload_json.as_object().unwrap();
-            let user_id = payload_claims.get("userId");
-            let app_id = payload_claims.get("appId");
-            let device_id = payload_claims.get("deviceId");
-            let vip_expire_time = payload_claims.get("et");
-            let x_request_id_value = if x_request_id.is_some() {
-                get_header_value(x_request_id.unwrap()).unwrap().to_string()
-            } else {
-                let uuid = Uuid::new_v4();
-                uuid.to_string()
-            };
-            let login_user_info = LoginUserInfo {
-                token: token.to_string(),
-                userId: user_id.unwrap().as_i64().unwrap(),
-                // https://stackoverflow.com/questions/72345657/how-do-i-get-the-string-value-of-a-json-value-without-quotes
-                appId: app_id
-                    .unwrap()
-                    .as_str()
-                    .expect("get app id failed")
-                    .to_string(),
-                xRequestId: x_request_id_value,
-                deviceId: device_id
-                    .unwrap()
-                    .as_str()
-                    .expect("get device id failed")
-                    .to_string(),
-                vipExpireTime: vip_expire_time.unwrap().as_i64().unwrap_or_default(),
-            };
-            ready(Ok(login_user_info))
-        } else {
-            let json_error = ErrorResponse {
-                status: "fail".to_string(),
-                message: "the user belonging to this token no logger exists".to_string(),
-            };
-            ready(Err(ErrorUnauthorized(json_error)))
+    fn from_request(_: &HttpRequest, _: &mut Payload) -> Self::Future {
+        match ContextUtil::current_user() {
+            Ok(user) => ready(Ok(user)),
+            Err(_) => {
+                let json_error = ErrorResponse {
+                    status: "fail".to_string(),
+                    message: "the user belonging to this token no logger exists".to_string(),
+                };
+                ready(Err(ErrorUnauthorized(json_error)))
+            }
         }
     }
 }
