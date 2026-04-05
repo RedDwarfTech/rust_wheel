@@ -3,6 +3,7 @@ use actix_web::{
     Error,
 };
 use futures::future::LocalBoxFuture;
+use log::{debug, error};
 use std::{
     future::{ready, Ready},
     rc::Rc,
@@ -54,38 +55,57 @@ where
         Box::pin(async move {
             // Extract token
             let token = jwt_auth::get_auth_token(req.request());
+            debug!("AuthMiddleware: extracted token, is_empty={}", token.is_empty());
             if token.is_empty() {
                 // If no token, proceed without setting user
+                debug!("AuthMiddleware: token is empty, proceeding without user");
                 return service.call(req).await;
             }
 
             // Verify token and extract user info
             if let Some(_) = jwt_auth::verify_jwt_token(&token) {
                 // Token invalid, proceed without user
+                error!("AuthMiddleware: token verification failed");
                 return service.call(req).await;
             }
+            debug!("AuthMiddleware: token verification passed");
 
             // Decode token to get user info
             let parts: Vec<&str> = token.split('.').collect();
+            debug!("AuthMiddleware: token parts count={}", parts.len());
             if parts.len() != 3 {
+                error!("AuthMiddleware: invalid token format, parts.len()={}", parts.len());
                 return service.call(req).await;
             }
             let payload_base64 = parts[1];
             let payload_bytes = match base64::decode(payload_base64) {
                 Ok(b) => b,
-                Err(_) => return service.call(req).await,
+                Err(e) => {
+                    error!("AuthMiddleware: base64 decode failed, err={}", e);
+                    return service.call(req).await;
+                }
             };
             let payload_str = match String::from_utf8(payload_bytes) {
                 Ok(s) => s,
-                Err(_) => return service.call(req).await,
+                Err(e) => {
+                    error!("AuthMiddleware: utf8 decode failed, err={}", e);
+                    return service.call(req).await;
+                }
             };
+            debug!("AuthMiddleware: payload_str={}", payload_str);
             let payload_json: serde_json::Value = match serde_json::from_str(&payload_str) {
                 Ok(v) => v,
-                Err(_) => return service.call(req).await,
+                Err(e) => {
+                    error!("AuthMiddleware: json parse failed, err={}", e);
+                    return service.call(req).await;
+                }
             };
             let payload_claims = match payload_json.as_object() {
                 Some(o) => o,
-                None => return service.call(req).await,
+                None => {
+                    error!("AuthMiddleware: payload is not object");
+                    return service.call(req).await;
+                }
             };
 
             let user_id = payload_claims.get("userId").and_then(|v| v.as_i64());
@@ -93,7 +113,10 @@ where
             let device_id = payload_claims.get("deviceId").and_then(|v| v.as_str());
             let vip_expire_time = payload_claims.get("et").and_then(|v| v.as_i64()).unwrap_or_default();
 
+            debug!("AuthMiddleware: extracted fields - user_id={:?}, app_id={:?}, device_id={:?}, vip_expire_time={}", user_id, app_id, device_id, vip_expire_time);
+
             if user_id.is_none() || app_id.is_none() || device_id.is_none() {
+                error!("AuthMiddleware: required fields missing - user_id.is_none()={}, app_id.is_none()={}, device_id.is_none()={}", user_id.is_none(), app_id.is_none(), device_id.is_none());
                 return service.call(req).await;
             }
 
@@ -108,10 +131,13 @@ where
                 token: token.to_string(),
                 userId: user_id.unwrap(),
                 appId: app_id.unwrap().to_string(),
-                xRequestId: x_request_id,
+                xRequestId: x_request_id.clone(),
                 deviceId: device_id.unwrap().to_string(),
                 vipExpireTime: vip_expire_time,
             };
+
+            debug!("AuthMiddleware: LoginUserInfo created - userId={}, appId={}, xRequestId={}, deviceId={}, vipExpireTime={}", 
+                login_user_info.userId, login_user_info.appId, login_user_info.xRequestId, login_user_info.deviceId, login_user_info.vipExpireTime);
 
             // Set user in context and call service
             ContextUtil::with_user(login_user_info, service.call(req)).await
