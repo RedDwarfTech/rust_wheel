@@ -1,5 +1,6 @@
 use std::future::Future;
 
+use log::error;
 use tokio::task_local;
 
 use crate::model::user::login_user_info::LoginUserInfo;
@@ -20,8 +21,12 @@ impl ContextUtil {
     }
     
     pub fn current_user() -> Result<LoginUserInfo, &'static str> {
-        // 注意：必须在 task_local! 作用域内调用
-        CURRENT_USER.try_with(|user| user.clone())
-            .map_err(|_| "User context not found")
+        match CURRENT_USER.try_with(|user| user.clone()) {
+            Ok(user) => Ok(user),
+            Err(err) => {
+                error!("ContextUtil::current_user failed: user context not found, err={:?}", err);
+                Err("User context not found")
+            }
+        }
     }
 }

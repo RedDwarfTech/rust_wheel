@@ -149,11 +149,12 @@ impl FromRequest for LoginUserInfo {
     fn from_request(_: &HttpRequest, _: &mut Payload) -> Self::Future {
         match ContextUtil::current_user() {
             Ok(user) => ready(Ok(user)),
-            Err(_) => {
+            Err(e) => {
                 let json_error = ErrorResponse {
                     status: "fail".to_string(),
                     message: "the user belonging to this token no logger exists".to_string(),
                 };
+                error!("get user from context failed: {}", e);
                 ready(Err(ErrorUnauthorized(json_error)))
             }
         }
