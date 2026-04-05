@@ -62,14 +62,6 @@ where
                 return service.call(req).await;
             }
 
-            // Verify token and extract user info
-            if let Some(_) = jwt_auth::verify_jwt_token(&token) {
-                // Token invalid, proceed without user
-                error!("AuthMiddleware: token verification failed");
-                return service.call(req).await;
-            }
-            debug!("AuthMiddleware: token verification passed");
-
             // Decode token to get user info
             let parts: Vec<&str> = token.split('.').collect();
             debug!("AuthMiddleware: token parts count={}", parts.len());
