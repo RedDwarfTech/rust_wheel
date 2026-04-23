@@ -1,6 +1,6 @@
 [package]
 name = "rust_wheel"
-version = "0.1.9"
+version = "0.1.10"
 edition = "2018"
 license = "MIT"
 authors = ["Jiangxiaoqiang <jiangtingqiang@gmail.com>"]
@@ -36,7 +36,7 @@ data-encoding = "2.3.2"
 reqwest = { version = "0.11", features = ["json"] }
 redis = "1.1.0"
 mobc = "0.8.1"
-jsonwebtoken = "8.3.0"
+jsonwebtoken = "10.3.0"
 base64 = "0.4.0"
 actix-web = "4"
 tokio = { version = "1.17.0", features = ["full"] }
