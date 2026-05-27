@@ -1,6 +1,6 @@
 [package]
 name = "rust_wheel"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2018"
 license = "MIT"
 authors = ["Jiangxiaoqiang <jiangtingqiang@gmail.com>"]
@@ -18,38 +18,38 @@ rocket = { version = "=0.5.0", features = ["json"] }
 # okapi = { git = "https://github.com/GREsau/okapi.git", version="0.8.0-rc.1"}
 schemars = "0.7"
 rocket_okapi = { version = "0.8.0", features = ["swagger", "rapidoc"]}
-serde = { version = "1.0.64", features = ["derive"] }
-serde_json = "1.0.64"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
 config = "0.11"
-diesel = { version = "2.0.4", features = ["postgres"] }
+diesel = { version = "2.3.9", features = ["postgres"] }
 chrono = "0.4"
 dotenv = "0.15.0"
-env_logger = "0.9.0"
+env_logger = "0.9.3"
 log = "0.4"
 num-traits = "0.2"
 ring = "0.16.20"
 md5 = "0.7.0"
 gostd = "^0.3"
-sha2 = "0.10.2"
+sha2 = "0.10.9"
 rsa = "0.6.1"
-data-encoding = "2.3.2"
+data-encoding = "2.11.0"
 reqwest = { version = "0.11", features = ["json"] }
-redis = "1.1.0"
-mobc = "0.8.1"
-jsonwebtoken = "10.3.0"
+redis = "1.2.1"
+mobc = "0.8.5"
+jsonwebtoken = "10.4.0"
 base64 = "0.22.1"
 actix-web = "4"
-tokio = { version = "1.17.0", features = ["full"] }
+tokio = { version = "1.52.3", features = ["full"] }
 futures = "0.3"
-uuid = {version = "1.4.1",features = [
+uuid = {version = "1.23.1",features = [
     "v4",                # Lets you generate random UUIDs
     "fast-rng",          # Use a faster (but still sufficiently random) RNG
     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
 ]}
 urlencoding = "2.1.3"
-form_urlencoded = "1.2.1"
+form_urlencoded = "1.2.2"
 rand = "0.8"
-thiserror = "1.0.61"
+thiserror = "1.0.69"
 hmac = "0.12"
 hex = "0.4"
 
