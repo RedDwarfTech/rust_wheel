@@ -11,10 +11,12 @@ pub fn initial_config() {
 
 #[allow(dead_code)]
 pub fn get_config(key: &str) -> String {
-    let mut settings = config::Config::default();
-    settings.merge(config::File::with_name("settings")).unwrap()
-        .merge(config::Environment::with_prefix("APP")).unwrap();
-    let hash_config = settings.try_into::<HashMap<String, String>>().unwrap();
+    let settings = config::Config::builder()
+        .add_source(config::File::with_name("settings"))
+        .add_source(config::Environment::with_prefix("APP"))
+        .build()
+        .unwrap();
+    let hash_config: HashMap<String, String> = settings.try_deserialize().unwrap();
     let conn = hash_config.get(key).unwrap();
     let std =String::from(conn);
     return std;
@@ -35,8 +37,11 @@ pub fn initial_log_config(){
 }
 
 pub fn initial_file_config(){
-    let mut settings = config::Config::default();
-    settings.merge(config::File::with_name("settings")).unwrap()
-        .merge(config::Environment::with_prefix("APP")).unwrap();
-    println!("{:?}", settings.try_into::<HashMap<String, String>>().unwrap());
+    let settings = config::Config::builder()
+        .add_source(config::File::with_name("settings"))
+        .add_source(config::Environment::with_prefix("APP"))
+        .build()
+        .unwrap();
+    let hash_config: HashMap<String, String> = settings.try_deserialize().unwrap();
+    println!("{:?}", hash_config);
 }
