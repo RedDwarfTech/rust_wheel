@@ -7,7 +7,7 @@ use gostd::{
 };
 use log::error;
 use rsa::{
-    pkcs1::DecodeRsaPrivateKey, pkcs8::DecodePublicKey, Hash, PaddingScheme, PublicKey,
+    pkcs1::DecodeRsaPrivateKey, pkcs8::DecodePublicKey, pkcs1v15::Pkcs1v15Sign,
     RsaPrivateKey, RsaPublicKey,
 };
 use std::{
@@ -73,10 +73,8 @@ impl Signer for SignSHA256WithRSA {
         if self.private_key.is_none() {
             return Err(Error::new(ErrorKind::Other, "private_key is None"));
         }
-        if let Ok(signature_byte) = self.private_key.as_ref().unwrap().sign(
-            PaddingScheme::new_pkcs1v15_sign(Some(Hash::SHA2_256)),
-            digest.as_slice(),
-        ) {
+        let scheme = Pkcs1v15Sign::new::<Sha256>();
+        if let Ok(signature_byte) = self.private_key.as_ref().unwrap().sign(scheme, digest.as_slice()) {
             Ok(base64::encode(&signature_byte))
         } else {
             Err(Error::new(ErrorKind::Other, "pkcs1v15_sign failed"))
@@ -97,8 +95,9 @@ impl Signer for SignSHA256WithRSA {
         let decode_result = base64::decode(signature);
         match decode_result {
             Ok(decode_signature) => {
+                let scheme = Pkcs1v15Sign::new::<Sha256>();
                 match self.public_key.as_ref().unwrap().verify(
-                    PaddingScheme::new_pkcs1v15_sign(Some(Hash::SHA2_256)),
+                    scheme,
                     &hashed.finalize(),
                     &decode_signature,
                 ) {

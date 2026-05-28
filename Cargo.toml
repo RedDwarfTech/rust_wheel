@@ -9,15 +9,15 @@ description = "A project to define some public component."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = { version = "=0.5.0", features = ["json"] }
+rocket = { version = "=0.5.1", features = ["json"] }
 
 #
 # https://github.com/GREsau/okapi/issues/96
 # Fortune doc configuration
 #
 # okapi = { git = "https://github.com/GREsau/okapi.git", version="0.8.0-rc.1"}
-schemars = "0.7"
-rocket_okapi = { version = "0.8.0", features = ["swagger", "rapidoc"]}
+schemars = "1.2.1"
+rocket_okapi = { version = "0.9.0", features = ["swagger", "rapidoc"]}
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
 config = "0.15.23"
@@ -27,15 +27,15 @@ dotenv = "0.15.0"
 env_logger = "0.11.10"
 log = "0.4"
 num-traits = "0.2"
-ring = "0.16.20"
+ring = "0.17.14"
 md5 = "0.8.0"
-gostd = "^0.3"
-sha2 = "0.10.9"
-rsa = "0.6.1"
+gostd = "0.4.5"
+sha2 = { version = "0.10.9", features = ["oid"] }
+rsa = "0.9.10"
 data-encoding = "2.11.0"
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.13.4", features = ["json"] }
 redis = "1.2.1"
-mobc = "0.8.5"
+mobc = "0.9.0"
 jsonwebtoken = "10.4.0"
 base64 = "0.22.1"
 actix-web = "4"
@@ -48,8 +48,8 @@ uuid = {version = "1.23.1",features = [
 ]}
 urlencoding = "2.1.3"
 form_urlencoded = "1.2.2"
-rand = "0.8"
-thiserror = "1.0.69"
+rand = "0.10.1"
+thiserror = "2.0.18"
 hmac = "0.12"
 hex = "0.4"
 

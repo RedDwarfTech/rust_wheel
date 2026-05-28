@@ -1,8 +1,9 @@
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
+use rand::distr::Alphanumeric;
+use rand::rng;
+use rand::RngExt;
 
 pub fn generate_random_string(length: usize) -> String {
-    let rng = thread_rng();
+    let rng = rng();
     let random_string: String = rng
         .sample_iter(&Alphanumeric)
         .take(length)
