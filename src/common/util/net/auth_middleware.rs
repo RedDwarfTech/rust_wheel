@@ -73,7 +73,7 @@ where
             let payload_bytes = match base64::decode(payload_base64) {
                 Ok(b) => b,
                 Err(e) => {
-                    error!("AuthMiddleware: base64 decode failed, err={}", e);
+                    error!("AuthMiddleware: base64 decode failed, err={}, payload={}", e, payload_base64);
                     return service.call(req).await;
                 }
             };
