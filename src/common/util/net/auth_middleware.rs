@@ -2,6 +2,8 @@ use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
 };
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine as _;
 use futures::future::LocalBoxFuture;
 use log::{debug, error};
 use std::{
@@ -70,7 +72,7 @@ where
                 return service.call(req).await;
             }
             let payload_base64 = parts[1];
-            let payload_bytes = match base64::decode(payload_base64) {
+            let payload_bytes = match URL_SAFE_NO_PAD.decode(payload_base64) {
                 Ok(b) => b,
                 Err(e) => {
                     error!("AuthMiddleware: base64 decode failed, err={}, payload={}", e, payload_base64);

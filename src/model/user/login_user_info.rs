@@ -1,3 +1,5 @@
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine as _;
 use rocket::{Request, request};
 use rocket::outcome::Outcome;
 use rocket::request::FromRequest;
@@ -51,7 +53,7 @@ impl<'r> FromRequest<'r> for LoginUserInfo {
         let x_request_id = request.headers().get_one("x-request-id");
         let parts: Vec<&str> = token.split(".").collect();
         let payload_base64 = parts[1];
-        let payload_str = base64::decode(payload_base64).unwrap();
+        let payload_str = URL_SAFE_NO_PAD.decode(payload_base64).unwrap();
         let payload_json = from_str::<serde_json::Value>(&String::from_utf8(payload_str).unwrap()).unwrap();
         let payload_claims = payload_json.as_object().unwrap();
         let user_id = payload_claims.get("userId");
