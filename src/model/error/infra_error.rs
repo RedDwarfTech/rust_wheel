@@ -30,6 +30,8 @@ pub enum InfraError {
     UserAlreadyRegistered,
     #[error("APPID不匹配")]
     AppIdNotMatch,
+    #[error("当日额度已满")]
+    SmsDailyLimitReached,
 }
 
 impl ErrorResponse for InfraError {
@@ -48,6 +50,7 @@ impl ErrorResponse for InfraError {
             InfraError::LoginErrorTooMany => "0030010002",
             InfraError::UserAlreadyRegistered => "0030010005",
             InfraError::AppIdNotMatch => "0030010007",
+            InfraError::SmsDailyLimitReached => "0030010015",
         }
     }
 
@@ -89,6 +92,9 @@ impl ErrorResponse for InfraError {
             },
             InfraError::AppIdNotMatch => {
                 "APPID不匹配"
+            },
+            InfraError::SmsDailyLimitReached => {
+                "当日额度已满"
             }
         }
     }
@@ -108,6 +114,7 @@ impl ErrorResponse for InfraError {
             InfraError::LoginErrorTooMany => "LOGIN_FAILED_TOO_MUCH",
             InfraError::UserAlreadyRegistered => "USER_ALREADY_REGISTERED",
             InfraError::AppIdNotMatch => "APPID_NOT_MATCH",
+            InfraError::SmsDailyLimitReached => "SMS_DAILY_LIMIT_REACHED",
         }
     }
 }
