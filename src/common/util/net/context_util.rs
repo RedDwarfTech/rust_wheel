@@ -1,7 +1,6 @@
 use std::future::Future;
 
 use log::error;
-use log::info;
 use tokio::task_local;
 
 use crate::model::user::login_user_info::LoginUserInfo;
@@ -18,7 +17,6 @@ impl ContextUtil {
     where
         F: Future<Output = T>,
     {
-        info!("set user to context: {}", serde_json::to_string(&user).unwrap());
         CURRENT_USER.scope(user, f).await
     }
     
