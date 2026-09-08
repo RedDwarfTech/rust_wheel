@@ -1,6 +1,6 @@
 [package]
 name = "rust_wheel"
-version = "0.1.17"
+version = "0.1.18"
 edition = "2018"
 license = "MIT"
 authors = ["Jiangxiaoqiang <jiangtingqiang@gmail.com>"]
@@ -36,8 +36,8 @@ data-encoding = "2.11.0"
 reqwest = { version = "0.13.4", features = ["json"] }
 redis = "1.2.1"
 mobc = "0.9.0"
-jsonwebtoken = "10.4.0"
-base64 = "0.22.1"
+jsonwebtoken = { version = "11.0.0", features = ["rust_crypto"] }
+base64 = "0.23.1"
 actix-web = "4"
 tokio = { version = "1.52.3", features = ["full"] }
 futures = "0.3"

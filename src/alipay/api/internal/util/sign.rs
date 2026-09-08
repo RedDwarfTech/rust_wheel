@@ -1,6 +1,6 @@
 //! 签名验证模块
 #![allow(unused)]
-use base64;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use gostd::{
     bytes,
     io::{ByteWriter, StringWriter},
@@ -75,7 +75,7 @@ impl Signer for SignSHA256WithRSA {
         }
         let scheme = Pkcs1v15Sign::new::<Sha256>();
         if let Ok(signature_byte) = self.private_key.as_ref().unwrap().sign(scheme, digest.as_slice()) {
-            Ok(base64::encode(&signature_byte))
+            Ok(STANDARD.encode(&signature_byte))
         } else {
             Err(Error::new(ErrorKind::Other, "pkcs1v15_sign failed"))
         }
@@ -92,7 +92,7 @@ impl Signer for SignSHA256WithRSA {
         let mut hashed = Sha256::new();
         hashed.update(source.as_bytes());
         // https://stackoverflow.com/questions/78425827/how-to-make-rust-decode-the-base64-string-keep-the-same-with-java
-        let decode_result = base64::decode(signature);
+        let decode_result = STANDARD.decode(signature);
         match decode_result {
             Ok(decode_signature) => {
                 let scheme = Pkcs1v15Sign::new::<Sha256>();
