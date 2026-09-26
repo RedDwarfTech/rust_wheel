@@ -2,8 +2,6 @@ use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
 };
-use base64::engine::general_purpose::URL_SAFE_NO_PAD;
-use base64::Engine as _;
 use futures::future::LocalBoxFuture;
 use log::{debug, error};
 use std::{
@@ -64,40 +62,24 @@ where
                 return service.call(req).await;
             }
 
-            // Decode token to get user info
-            let parts: Vec<&str> = token.split('.').collect();
-            debug!("AuthMiddleware: token parts count={}", parts.len());
-            if parts.len() != 3 {
-                error!("AuthMiddleware: invalid token format, parts.len()={}", parts.len());
-                return service.call(req).await;
-            }
-            let payload_base64 = parts[1];
-            let payload_bytes = match URL_SAFE_NO_PAD.decode(payload_base64) {
-                Ok(b) => b,
-                Err(e) => {
-                    error!("AuthMiddleware: base64 decode failed, err={}, payload={}", e, payload_base64);
-                    return service.call(req).await;
-                }
-            };
-            let payload_str = match String::from_utf8(payload_bytes) {
-                Ok(s) => s,
-                Err(e) => {
-                    error!("AuthMiddleware: utf8 decode failed, err={}", e);
-                    return service.call(req).await;
-                }
-            };
-            debug!("AuthMiddleware: payload_str={}", payload_str);
-            let payload_json: serde_json::Value = match serde_json::from_str(&payload_str) {
-                Ok(v) => v,
-                Err(e) => {
-                    error!("AuthMiddleware: json parse failed, err={}", e);
+            // The token decides who the caller is and, through the `et` claim,
+            // how many projects they may create, so it has to be a token we
+            // signed that is still valid. Decoding the payload on its own would
+            // let anyone hand-craft a token for any user with any expiry.
+            let payload_json = match jwt_auth::verify_and_decode_jwt_token(&token) {
+                Ok(claims) => claims,
+                Err(err) => {
+                    // A rejected token is not fatal here: the request just
+                    // carries no user, and `LoginUserInfo` turns that into a 401
+                    // so the client can refresh its token and retry.
+                    debug!("AuthMiddleware: token rejected, err={:?}", err);
                     return service.call(req).await;
                 }
             };
             let payload_claims = match payload_json.as_object() {
-                Some(o) => o,
+                Some(claims) => claims,
                 None => {
-                    error!("AuthMiddleware: payload is not object");
+                    error!("AuthMiddleware: token payload is not a json object");
                     return service.call(req).await;
                 }
             };

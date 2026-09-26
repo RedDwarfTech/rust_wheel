@@ -125,22 +125,33 @@ pub fn create_access_token(jwt_payload: &WebJwtPayload) -> String {
     return token.unwrap();
 }
 
-pub fn verify_jwt_token(token: &str) -> Option<ErrorKind> {
-    let secret_key = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
-    match decode::<serde_json::Value>(token, &decoding_key, &Default::default()) {
-        Ok(token_data) => {
-            if let Some(exp) = token_data.claims.get("exp") {
-                let current_time = chrono::Utc::now().timestamp();
-                let exp_time1 = exp.as_i64().unwrap();
-                if exp_time1 < current_time {
-                    return Some(ErrorKind::ExpiredSignature);
-                }
-            }
-            None
+/// Decode a token, checking that we signed it and that it has not expired yet.
+///
+/// Returns the claims so callers do not have to base64-decode the payload
+/// themselves. An `Err` must be treated as "no identity": the `et` claim in the
+/// payload decides the caller's VIP quota, so an unverified payload cannot be
+/// trusted.
+pub fn verify_and_decode_jwt_token(token: &str) -> Result<serde_json::Value, ErrorKind> {
+    let secret_key = match env::var("JWT_SECRET") {
+        Ok(secret_key) => secret_key,
+        Err(err) => {
+            // Failing closed is deliberate. Without the shared secret no token
+            // can be attributed to a user, and falling back to an unverified
+            // payload would let anyone mint a VIP token.
+            error!("JWT_SECRET must be set to verify tokens, err={}", err);
+            return Err(ErrorKind::InvalidToken);
         }
-        Err(err) => return Some(err.kind().clone()),
-    }
+    };
+    let decoding_key = DecodingKey::from_secret(secret_key.as_ref());
+    // `Validation::default` is HS256, requires an `exp` claim and allows 60s of
+    // clock leeway.
+    return decode::<serde_json::Value>(token, &decoding_key, &Default::default())
+        .map(|token_data| token_data.claims)
+        .map_err(|err| err.kind().clone());
+}
+
+pub fn verify_jwt_token(token: &str) -> Option<ErrorKind> {
+    return verify_and_decode_jwt_token(token).err();
 }
 
 impl FromRequest for LoginUserInfo {
